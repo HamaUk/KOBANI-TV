@@ -446,32 +446,51 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
             .focusRequester(focusRequester)
             .focusable()
             .onKeyEvent { ev ->
-                if (ev.type == KeyEventType.KeyDown) showOverlay = true
-                if (!isLive || ev.type != KeyEventType.KeyDown) return@onKeyEvent false
-                when (ev.key) {
-                    Key.DirectionUp -> {
+                if (ev.type != KeyEventType.KeyDown) return@onKeyEvent false
+                val wasOverlayHidden = !showOverlay
+                showOverlay = true
+
+                if (!isLive) return@onKeyEvent false
+
+                if (ev.key == Key.ChannelUp || ev.key == Key.ChannelDown) {
+                    scope.launch {
+                        vm.zap(forward = ev.key == Key.ChannelDown)?.let {
+                            currentUrl = it
+                            currentTitle = vm.current.value?.title ?: currentTitle
+                        }
+                    }
+                    return@onKeyEvent true
+                }
+
+                if (wasOverlayHidden) {
+                    if (ev.key == Key.DirectionUp) {
                         scope.launch {
                             vm.zap(forward = false)?.let {
                                 currentUrl = it
                                 currentTitle = vm.current.value?.title ?: currentTitle
                             }
                         }
-                        true
+                        return@onKeyEvent true
                     }
-                    Key.DirectionDown -> {
+                    if (ev.key == Key.DirectionDown) {
                         scope.launch {
                             vm.zap(forward = true)?.let {
                                 currentUrl = it
                                 currentTitle = vm.current.value?.title ?: currentTitle
                             }
                         }
-                        true
+                        return@onKeyEvent true
                     }
-                    Key.Enter, Key.DirectionCenter -> {
+                    if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
+                        return@onKeyEvent true
+                    }
+                    return@onKeyEvent false
+                } else {
+                    if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
                         drawerOpen = !drawerOpen
-                        true
+                        return@onKeyEvent true
                     }
-                    else -> false
+                    return@onKeyEvent false
                 }
             },
     ) {

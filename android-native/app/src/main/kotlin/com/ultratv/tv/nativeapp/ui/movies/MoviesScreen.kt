@@ -111,7 +111,7 @@ fun MoviesScreen(onOpen: (Long) -> Unit, vm: MoviesViewModel = hiltViewModel()) 
             Text("${paged.itemCount} titles loaded${if (paged.loadState.append is androidx.paging.LoadState.Loading) "…" else ""}",
                 fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 180.dp),
+                columns = GridCells.Fixed(4),
                 contentPadding = PaddingValues(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),

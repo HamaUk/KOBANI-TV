@@ -85,10 +85,10 @@ fun LiveScreen(onPlay: (url: String, title: String) -> Unit, vm: LiveViewModel =
     val S = com.ultratv.tv.nativeapp.i18n.LocalStrings.current
 
     Row(Modifier.fillMaxSize().padding(top = 76.dp)) {
-        // ---- Left pane: categories (200 dp — compact, focus-only) ----
+        // ---- Left pane: categories (140 dp — compact, focus-only) ----
         Column(
             modifier = Modifier
-                .width(160.dp)
+                .width(140.dp)
                 .fillMaxHeight()
                 .clipToBounds()
                 .padding(top = 20.dp, end = 0.dp),
@@ -128,10 +128,10 @@ fun LiveScreen(onPlay: (url: String, title: String) -> Unit, vm: LiveViewModel =
                 .background(UltraTokens.Line),
         )
 
-        // ---- Middle pane: channels (280 dp — readable but compact) ----
+        // ---- Middle pane: channels (240 dp — readable but compact) ----
         Column(
             modifier = Modifier
-                .width(280.dp)
+                .width(240.dp)
                 .fillMaxHeight()
                 .clipToBounds()
                 .padding(top = 20.dp, start = 0.dp),
@@ -451,55 +451,7 @@ private fun LivePreviewPane(
                 }
             }
 
-            // Top overlay: LIVE chip + category badge
-            Row(
-                Modifier
-                    .align(Alignment.TopStart)
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                LiveChip()
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    UhdBadge()
-                }
-            }
 
-            // Bottom overlay: number/name + now title + watch CTA
-            Box(
-                Modifier
-                    .align(Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            1f to Color(0xD9000000),
-                        )
-                    )
-                    .padding(start = 22.dp, end = 22.dp, top = 60.dp, bottom = 22.dp),
-            ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            "· ${channel.name}",
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 13.sp,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            nowTitle,
-                            color = Color.White,
-                            fontSize = 30.sp,
-                            fontFamily = UltraFonts.Serif,
-                            maxLines = 2,
-                        )
-                    }
-                }
-            }
         }
 
         // TiviMate-style full-day schedule of the focused channel.

@@ -61,7 +61,7 @@ fun HeroBanner(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(720.dp),
+            .height(420.dp),
     ) {
         // Backdrop
         Box(
@@ -115,7 +115,7 @@ fun HeroBanner(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .widthIn(max = 760.dp)
-                .padding(start = 80.dp, top = 110.dp, end = 40.dp),
+                .padding(start = 80.dp, top = 60.dp, end = 40.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             if (eyebrow != null) {
