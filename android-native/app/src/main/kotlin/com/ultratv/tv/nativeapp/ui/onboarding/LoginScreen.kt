@@ -99,9 +99,34 @@ fun LoginScreen(
                                             scope.launch {
                                                 try {
                                                     val ref = FirebaseDatabase.getInstance()
-                                                        .getReference("sync/global/loginCodes/$code")
+                                                        .getReference("sync/global/loginCodes")
                                                     val snapshot = ref.get().await()
-                                                    if (snapshot.exists() && snapshot.value == true) {
+                                                    var isValid = false
+                                                    
+                                                    if (snapshot.exists()) {
+                                                        snapshot.children.forEach { child ->
+                                                            val childCode = child.child("code").value?.toString()?.trim()?.lowercase()
+                                                            val active = child.child("active").value as? Boolean ?: true
+                                                            val expiresAtStr = child.child("expiresAt").value as? String
+                                                            
+                                                            if (childCode == code.trim().lowercase() && active) {
+                                                                if (expiresAtStr != null) {
+                                                                    try {
+                                                                        val expiresAt = java.time.Instant.parse(expiresAtStr)
+                                                                        if (java.time.Instant.now().isAfter(expiresAt)) {
+                                                                            return@forEach
+                                                                        }
+                                                                    } catch (e: Exception) {
+                                                                        return@forEach
+                                                                    }
+                                                                }
+                                                                isValid = true
+                                                                return@forEach
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (isValid) {
                                                         onLoginSuccess(code)
                                                     } else {
                                                         errorMsg = "Invalid code"
