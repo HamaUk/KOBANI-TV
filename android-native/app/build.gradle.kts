@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 }
 
 // Single source of truth for the app version: the top-level VERSION file
@@ -48,7 +49,7 @@ android {
     defaultConfig {
         // Different applicationId during development so it can be installed
         // alongside the existing Capacitor build (com.ultratv.tv).
-        applicationId = "com.ultratv.tv.nativeapp"
+        applicationId = "com.kobani4k.app"
         minSdk = 28
         targetSdk = 35
         versionCode = appVersionCode
@@ -95,7 +96,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
         }
         release {
@@ -111,7 +111,6 @@ android {
             // from the new key with an added lineage — it needs the old
             // (debug) key as the starting point.
             signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
         }
     }
 
@@ -203,6 +202,7 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
     implementation(libs.serialization.json)
     implementation(libs.datastore.preferences)
     implementation(libs.work.runtime)
@@ -214,6 +214,9 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database)
 
     // Tests — runs on the local JVM with Robolectric for Android types we
     // can't easily strip out (android.util.Base64).

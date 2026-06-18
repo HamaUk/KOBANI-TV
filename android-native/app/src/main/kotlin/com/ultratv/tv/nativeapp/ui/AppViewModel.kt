@@ -50,4 +50,14 @@ class AppViewModel @Inject constructor(
     fun setPreferSoftwareDecoder(v: Boolean) = viewModelScope.launch { store.setPreferSoftwareDecoder(v) }
     fun setEpgTimeOffsetMin(v: Int) = viewModelScope.launch { store.setEpgTimeOffsetMin(v) }
     fun setLocalLogosFolderUri(uri: String) = viewModelScope.launch { store.setLocalLogosFolderUri(uri) }
+    fun setLoginCode(code: String) = viewModelScope.launch { store.setLoginCode(code) }
+    
+    fun forceSync() {
+        val req = androidx.work.OneTimeWorkRequestBuilder<com.ultratv.tv.nativeapp.data.sync.SyncWorker>().build()
+        androidx.work.WorkManager.getInstance(context).enqueueUniqueWork(
+            "manual_sync",
+            androidx.work.ExistingWorkPolicy.REPLACE,
+            req
+        )
+    }
 }

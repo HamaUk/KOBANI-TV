@@ -34,12 +34,12 @@ class SyncWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val providerRepo: ProviderRepository,
     private val prefs: UserPreferencesStore,
+    private val firebaseSync: com.ultratv.tv.nativeapp.data.firebase.FirebaseSync,
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
         return try {
-            val providers = providerRepo.observeProviders().first()
-            providers.forEach { p -> runCatching { providerRepo.syncAll(p.id) } }
+            firebaseSync.syncPlaylist()
             prefs.setLastSyncAt(System.currentTimeMillis())
             Result.success()
         } catch (t: Throwable) {

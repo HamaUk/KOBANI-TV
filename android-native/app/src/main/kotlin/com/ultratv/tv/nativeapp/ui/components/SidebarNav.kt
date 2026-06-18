@@ -51,10 +51,6 @@ private val navItems = listOf(
     NavEntry("live",       { it.navLive },       UltraIcon.Live),
     NavEntry("movies",     { it.navMovies },     UltraIcon.Film),
     NavEntry("series",     { it.navSeries },     UltraIcon.Series),
-    NavEntry("guide",      { it.navGuide },      UltraIcon.Guide),
-    NavEntry("favorites",  { it.navFavorites },  UltraIcon.Heart),
-    NavEntry("categories", { it.navCategories }, UltraIcon.Folder),
-    NavEntry("recordings", { "Recordings" },     UltraIcon.Record),
     NavEntry("settings",   { it.navSettings },   UltraIcon.Gear),
 )
 

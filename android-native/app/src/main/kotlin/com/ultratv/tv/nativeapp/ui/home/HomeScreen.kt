@@ -69,157 +69,48 @@ fun HomeScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState()),
     ) {
-        // ---- HERO ----
-        val heroItem = series.firstOrNull() ?: movies.firstOrNull()
-        if (heroItem != null) {
-            HeroBanner(
-                eyebrow = "À l'affiche · Nouvelle saison",
-                title = (heroItem as? com.ultratv.tv.nativeapp.data.db.SeriesEntity)?.name
-                    ?: (heroItem as? com.ultratv.tv.nativeapp.data.db.MovieEntity)?.name
-                    ?: S.homeWelcome,
-                subtitle = "Une œuvre dense, lumineuse, qui prend le temps de regarder ses personnages comme on regarderait des paysages.",
-                image = (heroItem as? com.ultratv.tv.nativeapp.data.db.SeriesEntity)?.poster
-                    ?: (heroItem as? com.ultratv.tv.nativeapp.data.db.MovieEntity)?.poster,
-                rating = 96,
-                meta = listOf("2025", "UHD · Dolby Vision", "Multi-pistes"),
-                synopsis = null,
-                cast = null,
-                primaryLabel = S.live + " · Reprendre",
-                onPrimary = {
-                    when (heroItem) {
-                        is com.ultratv.tv.nativeapp.data.db.SeriesEntity -> onOpenSeries(heroItem.id)
-                        is com.ultratv.tv.nativeapp.data.db.MovieEntity -> onOpenMovie(heroItem.id)
-                    }
-                },
-                secondaryLabel = "Plus d'infos",
-                onSecondary = {
-                    when (heroItem) {
-                        is com.ultratv.tv.nativeapp.data.db.SeriesEntity -> onOpenSeries(heroItem.id)
-                        is com.ultratv.tv.nativeapp.data.db.MovieEntity -> onOpenMovie(heroItem.id)
-                    }
-                },
-                rightContent = if (channels.isNotEmpty()) ({
-                    com.ultratv.tv.nativeapp.ui.common.NowPlayingMiniColumn(
-                        items = channels.take(4).mapIndexed { idx, c ->
-                            com.ultratv.tv.nativeapp.ui.common.NowPlayingItem(
-                                channelNumber = idx + 1,
-                                channelName = c.name,
-                                channelLogoUrl = c.logo,
-                                channelShort = null,
-                                hueSeed = c.name.hashCode(),
-                                hd = null,
-                                nowTitle = "En cours",
-                                endsInMinutes = 30,
-                            )
-                        },
-                    )
-                }) else null,
+        // Welcome state
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = UltraTokens.EdgeGutter, top = 40.dp, end = UltraTokens.EdgeGutter),
+        ) {
+            Text(
+                "KOBANI 4K",
+                fontFamily = UltraFonts.Serif,
+                fontSize = 50.sp,
+                lineHeight = 54.sp,
+                color = UltraTokens.Fg,
             )
-        } else {
-            // Welcome state — no providers yet
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = UltraTokens.EdgeGutter, top = 60.dp, end = UltraTokens.EdgeGutter),
-            ) {
-                Text(
-                    "Bienvenue.",
-                    fontFamily = UltraFonts.Serif,
-                    fontSize = 84.sp,
-                    lineHeight = 84.sp,
-                    letterSpacing = (-2.1).sp,
-                    color = UltraTokens.Fg,
-                )
-                Spacer(Modifier.height(18.dp))
-                Text(
-                    S.homeWelcome,
-                    color = UltraTokens.Fg2,
-                    fontSize = 18.sp,
-                )
-            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Dashboard",
+                color = UltraTokens.Fg2,
+                fontSize = 18.sp,
+            )
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(40.dp))
 
-        // Active provider chip
-        val activeProvider = providers.firstOrNull { it.active } ?: providers.firstOrNull()
-        if (activeProvider != null) {
-            Row(
-                Modifier.padding(start = UltraTokens.EdgeGutter, bottom = 18.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    "★",
-                    color = UltraTokens.Accent,
-                    fontSize = 14.sp,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    activeProvider.name + "  ·  " + activeProvider.kind,
-                    color = UltraTokens.Fg3,
-                    fontSize = 13.sp,
-                )
-            }
-        }
-
-        // Onboarding card when no provider is configured
-        if (providers.isEmpty()) {
-            Box(Modifier.padding(horizontal = UltraTokens.EdgeGutter)) {
-                MacOnboardingCard(mac = vm.mac, onGoSettings = onGoSettings)
-            }
-            Spacer(Modifier.height(20.dp))
-        }
-
-        // ---- Continue watching ----
-        if (continueW.isNotEmpty()) {
+        if (channels.isNotEmpty()) {
             ContentRail(
-                title = S.homeContinueWatching,
-                eyebrow = "Pour vous",
-                cardWidth = 300.dp,
-                items = continueW,
-                itemKey = { "h-${it.kind}-${it.remoteId}" },
-            ) { h ->
-                val progress = if (h.durationMs > 0) (h.positionMs.toFloat() / h.durationMs.toFloat()) else 0f
-                val remainingMs = (h.durationMs - h.positionMs).coerceAtLeast(0)
-                val mins = (remainingMs / 60_000).toInt()
-                val remaining = if (h.durationMs <= 0) null
-                    else if (mins >= 60) "${mins / 60}h ${mins % 60}"
-                    else "$mins min"
-                com.ultratv.tv.nativeapp.ui.common.ContinueWatchingTile(
-                    title = h.title,
-                    poster = h.poster,
-                    epLabel = h.kind.lowercase().replaceFirstChar { it.uppercase() },
-                    remaining = remaining,
-                    progress = progress,
-                    hueSeed = h.title.hashCode(),
-                    onClick = { actionsFor = h },
-                )
-            }
-        }
-
-        if (recent.isNotEmpty() && recent.size > continueW.size) {
-            ContentRail(
-                title = S.homeRecentlyWatched,
-                cardWidth = 240.dp,
-                items = recent,
-                itemKey = { "r-${it.kind}-${it.remoteId}" },
-            ) { h ->
+                title = "Live TV",
+                items = channels,
+                itemKey = { it.id },
+                cardWidth = 260.dp,
+            ) { c ->
                 PosterCard(
-                    title = h.title,
-                    poster = h.poster,
-                    subtitle = h.kind.lowercase().replaceFirstChar { it.uppercase() },
+                    title = c.name,
+                    poster = c.logo,
+                    subtitle = "Live",
                     aspect = 16f / 9f,
-                ) {
-                    vm.playFromHistory(h)
-                    onPlay(h.streamUrl, h.title)
-                }
+                ) { onPlay(c.streamUrl, c.name) }
             }
         }
 
         if (movies.isNotEmpty()) {
             ContentRail(
-                title = S.homeFeaturedMovies,
-                eyebrow = "Cinéma",
+                title = "Movies",
                 items = movies,
                 itemKey = { it.id },
             ) { m ->
@@ -233,8 +124,7 @@ fun HomeScreen(
 
         if (series.isNotEmpty()) {
             ContentRail(
-                title = S.seriesTitle,
-                eyebrow = "Séries",
+                title = "Series",
                 items = series,
                 itemKey = { it.id },
             ) { s ->
@@ -246,18 +136,20 @@ fun HomeScreen(
             }
         }
 
-        if (channels.isNotEmpty()) {
+        val sportsChannels = channels.filter { 
+            it.name.contains("sport", ignoreCase = true) || it.categoryId?.contains("sport", ignoreCase = true) == true 
+        }
+        if (sportsChannels.isNotEmpty()) {
             ContentRail(
-                title = S.homeFeaturedChannels,
-                eyebrow = "En direct",
-                items = channels,
+                title = "Sports",
+                items = sportsChannels,
                 itemKey = { it.id },
                 cardWidth = 260.dp,
             ) { c ->
                 PosterCard(
                     title = c.name,
                     poster = c.logo,
-                    subtitle = "Live",
+                    subtitle = "Live Sports",
                     aspect = 16f / 9f,
                 ) { onPlay(c.streamUrl, c.name) }
             }

@@ -53,6 +53,9 @@ data class UserPrefs(
      *  and the diagnostic flow is what keeps the redesign honest; flipping
      *  it off stops the dashboard cold for that install. */
     val telemetryEnabled: Boolean = true,
+    
+    /** KOBANI 4K Firebase Login Code */
+    val loginCode: String = "",
 
     // Playback / TV-quality knobs — exposed in Settings.
     /** Buffer target in seconds. Media3's default is 15 s, which is decent but
@@ -98,6 +101,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
         val preferSwDec = booleanPreferencesKey("prefer_software_decoder")
         val epgOffsetMin = intPreferencesKey("epg_offset_min")
         val localLogosUri = stringPreferencesKey("local_logos_uri")
+        val loginCode = stringPreferencesKey("login_code")
     }
 
     val flow: Flow<UserPrefs> = ctx.userPrefsDs.data.map { p ->
@@ -124,6 +128,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
             preferSoftwareDecoder = p[Keys.preferSwDec] ?: false,
             epgTimeOffsetMin = p[Keys.epgOffsetMin] ?: 0,
             localLogosFolderUri = p[Keys.localLogosUri] ?: "",
+            loginCode = p[Keys.loginCode] ?: "",
         )
     }
 
@@ -149,6 +154,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
     suspend fun setPreferSoftwareDecoder(v: Boolean) = update { it[Keys.preferSwDec] = v }
     suspend fun setEpgTimeOffsetMin(v: Int) = update { it[Keys.epgOffsetMin] = v.coerceIn(-720, 720) }
     suspend fun setLocalLogosFolderUri(uri: String) = update { it[Keys.localLogosUri] = uri }
+    suspend fun setLoginCode(code: String) = update { it[Keys.loginCode] = code }
 
     private suspend inline fun update(crossinline block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
         ctx.userPrefsDs.edit { block(it) }
