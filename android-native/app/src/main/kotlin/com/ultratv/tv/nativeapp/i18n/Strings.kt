@@ -16,7 +16,8 @@ enum class AppLang(val code: String, val displayName: String, val rtl: Boolean =
     English("en", "English"),
     French("fr", "Français"),
     Spanish("es", "Español"),
-    Arabic("ar", "العربية", rtl = true);
+    Arabic("ar", "العربية", rtl = true),
+    Kurdish("ckb", "کوردی (سۆرانی)", rtl = true);
 
     companion object {
         fun fromCode(code: String): AppLang = entries.firstOrNull { it.code == code } ?: System
@@ -1318,12 +1319,7 @@ fun stringsFor(lang: AppLang): Strings {
         val sys = LocalConfiguration.current.locales.get(0)?.language ?: "en"
         AppLang.entries.firstOrNull { it.code == sys } ?: AppLang.English
     } else lang
-    return when (resolved) {
-        AppLang.French -> FR
-        AppLang.Spanish -> ES
-        AppLang.Arabic -> AR
-        else -> EN
-    }
+    return LOCALES[resolved] ?: EN
 }
 
 val LocalStrings = compositionLocalOf<Strings> { EN }

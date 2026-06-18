@@ -65,12 +65,10 @@ object UltraTokens {
 }
 
 object UltraFonts {
-    // Geist / Geist Mono / Instrument Serif are bundled via downloadable fonts in
-    // the prototype; on-device we fall back to system families until the assets
-    // ship. Keeping the references centralised lets us swap them in one place.
-    val Sans:  FontFamily = FontFamily.SansSerif
+    val Rabar = FontFamily(androidx.compose.ui.text.font.Font(com.ultratv.tv.nativeapp.R.font.rabar))
+    val Sans:  FontFamily = Rabar
     val Mono:  FontFamily = FontFamily.Monospace
-    val Serif: FontFamily = FontFamily.Serif
+    val Serif: FontFamily = Rabar
 }
 
 /**
