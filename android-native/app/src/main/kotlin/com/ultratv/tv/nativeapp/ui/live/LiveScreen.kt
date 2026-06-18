@@ -103,13 +103,7 @@ fun LiveScreen(onPlay: (url: String, title: String) -> Unit, vm: LiveViewModel =
                 modifier = Modifier.padding(start = 24.dp, bottom = 14.dp),
             )
             LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                item("__all__") {
-                    CategoryRow(
-                        label = "All channels",
-                        selected = selected == CATEGORY_ALL,
-                        onClick = { vm.selectCategory(CATEGORY_ALL) },
-                    )
-                }
+
                 items(cats, key = { it.id }) { cat ->
                     CategoryRow(
                         label = prettyCategoryName(cat.name) + if (cat.locked) "  🔒" else "",

@@ -179,7 +179,12 @@ class LiveViewModel @Inject constructor(
             .flatMapLatest { (ps, hidden) ->
                 val pid = (ps.firstOrNull { it.active } ?: ps.firstOrNull())?.id ?: return@flatMapLatest flowOf(emptyList())
                 catalog.categories(pid, "LIVE").map { list ->
-                    list.filter { hiddenStore.keyFor("LIVE", pid, it.remoteId) !in hidden }
+                    val filtered = list.filter { hiddenStore.keyFor("LIVE", pid, it.remoteId) !in hidden }
+                    val sorted = filtered.sortedByDescending { it.name.equals("LIVE TV", ignoreCase = true) }
+                    if (sorted.isNotEmpty() && _selectedCategory.value == CATEGORY_ALL) {
+                        _selectedCategory.value = sorted.first().remoteId
+                    }
+                    sorted
                 }
             }
             .distinctUntilChanged()
