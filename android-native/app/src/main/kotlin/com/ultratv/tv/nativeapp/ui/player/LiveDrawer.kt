@@ -69,49 +69,66 @@ internal fun LiveDrawer(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(460.dp)
-                .background(Color(0xEE0B0B12))
-                .border(1.dp, t.Line2, RoundedCornerShape(0.dp))
-                .padding(18.dp),
+                .width(480.dp)
+                .clip(RoundedCornerShape(topStart = 32.dp, bottomStart = 32.dp))
+                .background(
+                    androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xF00A0A12), Color(0xFA000000))
+                    )
+                )
+                .border(
+                    1.dp,
+                    Color.White.copy(alpha = 0.05f),
+                    RoundedCornerShape(topStart = 32.dp, bottomStart = 32.dp)
+                )
+                .padding(horizontal = 32.dp, vertical = 40.dp),
         ) {
             Text(
                 s.liveZappingEyebrow,
-                color = t.Fg3,
-                fontSize = 11.sp,
-                letterSpacing = 2.3.sp,
-                fontWeight = FontWeight.Medium,
+                color = t.Accent,
+                fontSize = 12.sp,
+                letterSpacing = 3.sp,
+                fontWeight = FontWeight.Bold,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Text(
                 s.liveAllChannels,
-                color = t.Fg,
+                color = Color.White,
                 fontFamily = f.Serif,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Medium
             )
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(24.dp))
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(items = entries, key = { entry -> entry.channel.id }) { e ->
                     val idx = entries.indexOf(e)
+                    val interaction = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                    val focused by interaction.collectIsFocusedAsState()
+                    val highlight = e.isCurrent || focused
+
                     Card(
                         onClick = { onPick(e.channel) },
-                        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                        interactionSource = interaction,
+                        shape = CardDefaults.shape(RoundedCornerShape(16.dp)),
                         colors = ultraCardColors(
-                            containerColor = if (e.isCurrent) t.AccentSoft else Color.Transparent,
+                            containerColor = if (e.isCurrent) t.AccentSoft else Color(0x1AFFFFFF),
+                            focusedContainerColor = t.Accent,
+                            focusedContentColor = Color.White,
                         ),
                     ) {
                         Row(
-                            Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
                                 "%02d".format(idx + 1),
-                                color = if (e.isCurrent) t.Accent else t.Fg4,
-                                fontSize = 12.sp,
+                                color = if (highlight) Color.White else t.Fg4,
+                                fontSize = 14.sp,
                                 fontFamily = f.Mono,
                                 fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.width(32.dp),
+                                modifier = Modifier.width(36.dp),
                             )
                             ChannelLogo(
                                 name = e.channel.name,
@@ -119,31 +136,31 @@ internal fun LiveDrawer(
                                 short = null,
                                 hueSeed = e.channel.name.hashCode(),
                                 hd = null,
-                                size = 36.dp,
+                                size = 44.dp,
                                 showBadge = false,
                             )
-                            Spacer(Modifier.width(12.dp))
+                            Spacer(Modifier.width(16.dp))
                             Column(Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
                                         e.channel.name,
-                                        color = if (e.isCurrent) t.Fg else t.Fg2,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Medium,
+                                        color = if (highlight) Color.White else t.Fg2,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold,
                                         maxLines = 1,
                                     )
                                     if (e.isCurrent) {
                                         Spacer(Modifier.width(8.dp))
                                         Box(
                                             Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(t.Accent)
-                                                .padding(horizontal = 5.dp, vertical = 1.dp),
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(if (focused) Color.White else t.Accent)
+                                                .padding(horizontal = 6.dp, vertical = 2.dp),
                                         ) {
                                             Text(
                                                 s.liveOnAirPill,
-                                                color = Color.White,
-                                                fontSize = 8.sp,
+                                                color = if (focused) t.Accent else Color.White,
+                                                fontSize = 9.sp,
                                                 letterSpacing = 0.5.sp,
                                                 fontWeight = FontWeight.Bold,
                                             )
@@ -151,18 +168,20 @@ internal fun LiveDrawer(
                                     }
                                 }
                                 if (e.now != null) {
+                                    Spacer(Modifier.height(2.dp))
                                     Text(
                                         e.now.title,
-                                        color = t.Fg3,
-                                        fontSize = 11.sp,
+                                        color = if (highlight) Color.White else t.Fg3,
+                                        fontSize = 12.sp,
                                         maxLines = 1,
                                     )
                                 }
                                 if (e.next != null) {
+                                    Spacer(Modifier.height(2.dp))
                                     Text(
                                         "${s.liveThen} ${e.next.title}",
-                                        color = t.Fg4,
-                                        fontSize = 10.sp,
+                                        color = if (highlight) Color.White.copy(alpha = 0.7f) else t.Fg4,
+                                        fontSize = 11.sp,
                                         maxLines = 1,
                                     )
                                 }
