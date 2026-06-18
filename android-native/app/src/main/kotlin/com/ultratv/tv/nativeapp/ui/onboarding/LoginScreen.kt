@@ -42,51 +42,51 @@ fun LoginScreen(
     ) {
         Column(
             modifier = Modifier
-                .width(420.dp)
+                .width(360.dp)
                 .background(Color.White.copy(alpha = 0.03f), RoundedCornerShape(24.dp))
-                .padding(40.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.dom),
                 contentDescription = "Logo",
-                modifier = Modifier.height(80.dp),
+                modifier = Modifier.height(56.dp),
                 contentScale = ContentScale.Fit
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "KOBANI 4K",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 color = Color.White
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Enter your activation code",
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Code Display
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp)
+                    .height(48.dp)
                     .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = code.ifEmpty { "_____" },
                     color = if (code.isEmpty()) Color.Gray else Color.White,
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     letterSpacing = 12.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (errorMsg != null) {
-                Text(text = errorMsg!!, color = Color.Red, modifier = Modifier.padding(bottom = 16.dp))
+                Text(text = errorMsg!!, color = Color.Red, modifier = Modifier.padding(bottom = 8.dp))
             }
 
             // Keypad
@@ -97,9 +97,9 @@ fun LoginScreen(
                 listOf("DEL", "0", "OK")
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 for (row in keys) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         for (key in row) {
                             val isOk = key == "OK"
                             Button(
@@ -160,8 +160,8 @@ fun LoginScreen(
                                 },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(64.dp),
-                                shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp)),
+                                    .height(48.dp),
+                                shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
                                 colors = ButtonDefaults.colors(
                                     containerColor = if (isOk) Color(0xFF3B82F6) else Color.White.copy(alpha = 0.08f),
                                     contentColor = Color.White,
@@ -171,7 +171,7 @@ fun LoginScreen(
                             ) {
                                 Text(
                                     text = key,
-                                    fontSize = 22.sp,
+                                    fontSize = 18.sp,
                                     color = Color.White
                                 )
                             }
