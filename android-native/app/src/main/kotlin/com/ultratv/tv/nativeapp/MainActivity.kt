@@ -179,7 +179,7 @@ private fun Root(vm: AppViewModel = hiltViewModel()) {
     val prefs by vm.prefs.collectAsState()
     val lang = com.ultratv.tv.nativeapp.i18n.AppLang.fromCode(prefs.language)
     val strings = com.ultratv.tv.nativeapp.i18n.stringsFor(lang)
-    val direction = if (lang == com.ultratv.tv.nativeapp.i18n.AppLang.Arabic)
+    val direction = if (lang.rtl)
         androidx.compose.ui.unit.LayoutDirection.Rtl
     else
         androidx.compose.ui.unit.LayoutDirection.Ltr
