@@ -132,8 +132,9 @@ fun SettingsScreen(
         }
         Spacer(Modifier.height(12.dp))
     }
+}
 
-
+@Composable
 private fun SectionCard(content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier
