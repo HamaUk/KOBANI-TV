@@ -428,9 +428,10 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     }
 
     var showOverlay by remember { mutableStateOf(true) }
-    LaunchedEffect(showOverlay) {
+    var overlayResetKey by remember { mutableIntStateOf(0) }
+    LaunchedEffect(showOverlay, overlayResetKey) {
         if (showOverlay) {
-            delay(5000)
+            delay(8000)
             showOverlay = false
         }
     }
@@ -449,9 +450,11 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 if (ev.type != KeyEventType.KeyDown) return@onKeyEvent false
                 val wasOverlayHidden = !showOverlay
                 showOverlay = true
+                overlayResetKey++   // reset the 8-second auto-hide timer
 
                 if (!isLive) return@onKeyEvent false
 
+                // Channel-Up / Channel-Down hardware keys always zap
                 if (ev.key == Key.ChannelUp || ev.key == Key.ChannelDown) {
                     scope.launch {
                         vm.zap(forward = ev.key == Key.ChannelDown)?.let {
@@ -463,6 +466,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 }
 
                 if (wasOverlayHidden) {
+                    // Overlay was hidden → D-pad UP/DOWN zap channels
                     if (ev.key == Key.DirectionUp) {
                         scope.launch {
                             vm.zap(forward = false)?.let {
@@ -481,11 +485,15 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                         }
                         return@onKeyEvent true
                     }
+                    // First OK press just shows overlay (already set above)
                     if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
                         return@onKeyEvent true
                     }
                     return@onKeyEvent false
                 } else {
+                    // Overlay IS visible → let D-pad UP/DOWN/LEFT/RIGHT pass
+                    // through so Compose focus navigation reaches the buttons.
+                    // Only intercept OK to open the zap drawer.
                     if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
                         drawerOpen = !drawerOpen
                         return@onKeyEvent true
