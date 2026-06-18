@@ -47,7 +47,6 @@ private data class NavEntry(
 )
 
 private val navItems = listOf(
-    NavEntry("home",       { it.navHome },       UltraIcon.Home),
     NavEntry("live",       { it.navLive },       UltraIcon.Live),
     NavEntry("movies",     { it.navMovies },     UltraIcon.Film),
     NavEntry("series",     { it.navSeries },     UltraIcon.Series),
@@ -94,16 +93,16 @@ fun SidebarNav(navController: NavController) {
             Modifier.padding(horizontal = 28.dp).padding(bottom = 40.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                Modifier.size(36.dp).clip(RoundedCornerShape(10.dp))
-                    .background(Brush.linearGradient(listOf(UltraTokens.Accent, UltraTokens.Accent2))),
-                contentAlignment = Alignment.Center,
-            ) { UltraIcon(UltraIcon.Play, size = 18.dp, color = Color.Black) }
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(id = com.ultratv.tv.nativeapp.R.drawable.dom),
+                contentDescription = "Logo",
+                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp))
+            )
             if (expanded) {
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text("ULTRA", color = UltraTokens.Fg, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text("TV", color = UltraTokens.Fg3, fontSize = 10.sp, letterSpacing = 3.sp)
+                    Text("KOBANI", color = UltraTokens.Fg, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("4K", color = UltraTokens.Fg3, fontSize = 10.sp, letterSpacing = 3.sp)
                 }
             }
         }
@@ -130,24 +129,6 @@ fun SidebarNav(navController: NavController) {
 
         Spacer(Modifier.weight(1f, fill = true))
 
-        // Profile chip
-        Row(
-            Modifier.padding(horizontal = 24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                    .background(Brush.linearGradient(listOf(Color(0xFF3057B7), Color(0xFF6839B5)))),
-                contentAlignment = Alignment.Center,
-            ) { Text("K", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
-            if (expanded) {
-                Spacer(Modifier.width(12.dp))
-                Column {
-                    Text("Khalil", color = UltraTokens.Fg2, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                    Text("Salon · UHD", color = UltraTokens.Fg3, fontSize = 11.sp)
-                }
-            }
-        }
     }
 }
 

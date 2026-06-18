@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.tv.material3.MaterialTheme
@@ -220,6 +221,9 @@ private fun UltraTvAppRoot(sidebarPosition: SidebarPosition) {
         StartupNav.pending.value = null
     }
 
+    val currentBackStack by nav.currentBackStackEntryAsState()
+    val isPlayer = currentBackStack?.destination?.route?.startsWith(Routes.PLAYER.substringBefore("/{")) == true
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         colors = SurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
@@ -227,34 +231,36 @@ private fun UltraTvAppRoot(sidebarPosition: SidebarPosition) {
         androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
         when {
             useBottomBar -> Column(Modifier.fillMaxSize()) {
-                com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
+                if (!isPlayer) com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
                 Box(
                     Modifier
                         .weight(1f)
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
+                        .padding(if (isPlayer) PaddingValues(0.dp) else PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
                 ) { NavGraph(nav) }
-                BottomBarNav(navController = nav)
+                if (!isPlayer) BottomBarNav(navController = nav)
             }
             useTopBar -> Column(Modifier.fillMaxSize()) {
-                com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
-                TopBarNav(navController = nav)
+                if (!isPlayer) {
+                    com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
+                    TopBarNav(navController = nav)
+                }
                 Box(
                     Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 16.dp)),
+                        .padding(if (isPlayer) PaddingValues(0.dp) else PaddingValues(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 16.dp)),
                 ) { NavGraph(nav) }
             }
             else -> Column(Modifier.fillMaxSize()) {
-                com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
+                if (!isPlayer) com.ultratv.tv.nativeapp.ui.common.SyncStatusBanner()
                 Row(Modifier.fillMaxSize()) {
-                    SidebarNav(navController = nav)
+                    if (!isPlayer) SidebarNav(navController = nav)
                     Box(
                         Modifier
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background)
-                            .padding(PaddingValues(start = 12.dp, end = 24.dp, top = 24.dp, bottom = 24.dp)),
+                            .padding(if (isPlayer) PaddingValues(0.dp) else PaddingValues(start = 12.dp, end = 24.dp, top = 24.dp, bottom = 24.dp)),
                     ) { NavGraph(nav) }
                 }
             }
@@ -274,7 +280,7 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
             RemoteLog.info("nav", "→ ${entry.destination.route ?: "(unknown)"}")
         }
     }
-    NavHost(navController = nav, startDestination = Routes.HOME) {
+    NavHost(navController = nav, startDestination = Routes.LIVE) {
         composable(Routes.HOME) {
             HomeScreen(
                 onGoLive = { nav.navigate(Routes.LIVE) },

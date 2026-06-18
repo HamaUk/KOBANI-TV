@@ -88,7 +88,7 @@ fun LiveScreen(onPlay: (url: String, title: String) -> Unit, vm: LiveViewModel =
         // ---- Left pane: categories (200 dp — compact, focus-only) ----
         Column(
             modifier = Modifier
-                .width(200.dp)
+                .width(160.dp)
                 .fillMaxHeight()
                 .clipToBounds()
                 .padding(top = 20.dp, end = 0.dp),
@@ -128,10 +128,10 @@ fun LiveScreen(onPlay: (url: String, title: String) -> Unit, vm: LiveViewModel =
                 .background(UltraTokens.Line),
         )
 
-        // ---- Middle pane: channels (420 dp — readable but compact) ----
+        // ---- Middle pane: channels (280 dp — readable but compact) ----
         Column(
             modifier = Modifier
-                .width(420.dp)
+                .width(280.dp)
                 .fillMaxHeight()
                 .clipToBounds()
                 .padding(top = 20.dp, start = 0.dp),
