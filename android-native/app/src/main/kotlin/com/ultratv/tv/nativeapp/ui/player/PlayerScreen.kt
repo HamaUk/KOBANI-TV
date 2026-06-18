@@ -70,7 +70,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
 import androidx.tv.material3.Button
+import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import javax.inject.Inject
 
@@ -417,6 +425,14 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
         }
     }
 
+    var showOverlay by remember { mutableStateOf(true) }
+    LaunchedEffect(showOverlay) {
+        if (showOverlay) {
+            delay(5000)
+            showOverlay = false
+        }
+    }
+
     // D-pad UP/DOWN = channel zap on Live. The PlayerView eats LEFT/RIGHT for
     // seek when useController = true, which is what we want for VOD.
     val focusRequester = remember { FocusRequester() }
@@ -428,6 +444,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
             .focusRequester(focusRequester)
             .focusable()
             .onKeyEvent { ev ->
+                if (ev.type == KeyEventType.KeyDown) showOverlay = true
                 if (!isLive || ev.type != KeyEventType.KeyDown) return@onKeyEvent false
                 when (ev.key) {
                     Key.DirectionUp -> {
@@ -548,94 +565,121 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
             }
         }
 
-        Row(Modifier.align(Alignment.TopStart).padding(24.dp)) {
-            Column {
-                Text(currentTitle, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        if (showOverlay) {
+            Row(Modifier.align(Alignment.TopStart).padding(24.dp)) {
+                Column {
+                    Text(currentTitle, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                    if (isLive) {
+                        Text(
+                            "▲ ▼ to zap channels",
+                            color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp,
+                        )
+                    }
+                }
+            }
+            FlowRow(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .widthIn(max = 760.dp)
+                    .padding(24.dp),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = 4,
+            ) {
+                // Sleep timer menu — anchored bottom-right next to the external-player button.
+                var sleepMenu by remember { mutableStateOf(false) }
+                Button(onClick = { sleepMenu = !sleepMenu }) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.Timer, contentDescription = "Sleep", modifier = Modifier.size(16.dp))
+                        Text(
+                            if (sleepDeadlineMs > 0L) {
+                                val mins = ((sleepDeadlineMs - System.currentTimeMillis()) / 60_000L).coerceAtLeast(0L)
+                                "${mins}min"
+                            } else S.sleepLabel
+                        )
+                    }
+                }
+                if (sleepMenu) {
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .background(Color(0xCC000000), androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                            .padding(10.dp),
+                    ) {
+                        SleepOption(S.sleepMin15) { sleepDeadlineMs = System.currentTimeMillis() + 15 * 60_000; sleepMenu = false }
+                        SleepOption(S.sleepMin30) { sleepDeadlineMs = System.currentTimeMillis() + 30 * 60_000; sleepMenu = false }
+                        SleepOption(S.sleep1h) { sleepDeadlineMs = System.currentTimeMillis() + 60 * 60_000; sleepMenu = false }
+                        SleepOption(S.sleep2h) { sleepDeadlineMs = System.currentTimeMillis() + 120 * 60_000; sleepMenu = false }
+                        if (sleepDeadlineMs > 0L) {
+                            SleepOption(S.sleepCancel) { sleepDeadlineMs = 0L; sleepMenu = false }
+                        }
+                    }
+                }
+                
+                Button(onClick = { tracksOpen = true }) { 
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
+                        Text(S.playerTracks) 
+                    }
+                }
+                
                 if (isLive) {
-                    Text(
-                        "▲ ▼ to zap channels",
-                        color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp,
+                    Button(onClick = { vm.recordLive(120, S.recordingQueuedTemplate) }) { 
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Default.FiberManualRecord, contentDescription = "Record", tint = Color.Red, modifier = Modifier.size(16.dp))
+                            Text("${S.playerRecord} (2h)") 
+                        }
+                    }
+                }
+                Button(onClick = { displayMenu = !displayMenu }) { 
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", modifier = Modifier.size(16.dp))
+                        Text(S.playerDisplay) 
+                    }
+                }
+                // Cast picker — only shown if the Cast SDK initialised successfully
+                // (Play Services present). We use the framework's MediaRouteButton
+                // wrapped in an AndroidView so the system Cast UI takes over.
+                val castInited = remember {
+                    runCatching { com.google.android.gms.cast.framework.CastContext.getSharedInstance(context) }.isSuccess
+                }
+                if (castInited) {
+                    // MediaRouteButton wired by CastButtonFactory — opens the
+                    // framework's chooser dialog when the user clicks it.
+                    AndroidView(
+                        factory = { ctx ->
+                            androidx.mediarouter.app.MediaRouteButton(ctx).also { btn ->
+                                runCatching {
+                                    com.google.android.gms.cast.framework.CastButtonFactory
+                                        .setUpMediaRouteButton(ctx.applicationContext, btn)
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(start = 4.dp),
                     )
                 }
-                Text(currentUrl.substringBefore('?').takeLast(60), color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
-            }
-        }
-        FlowRow(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .widthIn(max = 760.dp)
-                .padding(24.dp),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
-            maxItemsInEachRow = 4,
-        ) {
-            // Sleep timer menu — anchored bottom-right next to the external-player button.
-            var sleepMenu by remember { mutableStateOf(false) }
-            Button(onClick = { sleepMenu = !sleepMenu }) {
-                Text(
-                    if (sleepDeadlineMs > 0L) {
-                        val mins = ((sleepDeadlineMs - System.currentTimeMillis()) / 60_000L).coerceAtLeast(0L)
-                        "💤 ${mins}min"
-                    } else "💤 " + S.sleepLabel
-                )
-            }
-            if (sleepMenu) {
-                Column(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .background(Color(0xCC000000), androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-                        .padding(10.dp),
-                ) {
-                    SleepOption(S.sleepMin15) { sleepDeadlineMs = System.currentTimeMillis() + 15 * 60_000; sleepMenu = false }
-                    SleepOption(S.sleepMin30) { sleepDeadlineMs = System.currentTimeMillis() + 30 * 60_000; sleepMenu = false }
-                    SleepOption(S.sleep1h) { sleepDeadlineMs = System.currentTimeMillis() + 60 * 60_000; sleepMenu = false }
-                    SleepOption(S.sleep2h) { sleepDeadlineMs = System.currentTimeMillis() + 120 * 60_000; sleepMenu = false }
-                    if (sleepDeadlineMs > 0L) {
-                        SleepOption(S.sleepCancel) { sleepDeadlineMs = 0L; sleepMenu = false }
+                Button(onClick = { statsOpen = !statsOpen }) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.Info, contentDescription = "Stats", modifier = Modifier.size(16.dp))
+                        Text(S.playerStats)
                     }
                 }
-            }
-            if (!isLive) {
-                Button(onClick = { tracksOpen = true }) { Text("🎚 ${S.playerTracks}") }
-            }
-            if (isLive) {
-                Button(onClick = { vm.recordLive(120, S.recordingQueuedTemplate) }) { Text("⏺ ${S.playerRecord} (2h)") }
-            }
-            Button(onClick = { displayMenu = !displayMenu }) { Text("📐 ${S.playerDisplay}") }
-            // Cast picker — only shown if the Cast SDK initialised successfully
-            // (Play Services present). We use the framework's MediaRouteButton
-            // wrapped in an AndroidView so the system Cast UI takes over.
-            val castInited = remember {
-                runCatching { com.google.android.gms.cast.framework.CastContext.getSharedInstance(context) }.isSuccess
-            }
-            if (castInited) {
-                // MediaRouteButton wired by CastButtonFactory — opens the
-                // framework's chooser dialog when the user clicks it.
-                AndroidView(
-                    factory = { ctx ->
-                        androidx.mediarouter.app.MediaRouteButton(ctx).also { btn ->
-                            runCatching {
-                                com.google.android.gms.cast.framework.CastButtonFactory
-                                    .setUpMediaRouteButton(ctx.applicationContext, btn)
-                            }
+                Button(onClick = {
+                    runCatching {
+                        val intent = Intent(Intent.ACTION_VIEW).apply {
+                            setDataAndType(Uri.parse(url), "video/*")
+                            putExtra("title", title)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
-                    },
-                    modifier = Modifier.padding(start = 4.dp),
-                )
-            }
-            Button(onClick = { statsOpen = !statsOpen }) {
-                Text("📊 " + S.playerStats)
-            }
-            Button(onClick = {
-                runCatching {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(Uri.parse(url), "video/*")
-                        putExtra("title", title)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        context.startActivity(Intent.createChooser(intent, S.recordingsOpenWith))
                     }
-                    context.startActivity(Intent.createChooser(intent, S.recordingsOpenWith))
+                }) { 
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.OpenInNew, contentDescription = "External Player", modifier = Modifier.size(16.dp))
+                        Text(S.playerExternal) 
+                    }
                 }
-            }) { Text(S.playerExternal) }
+            }
         }
         if (displayMenu) {
             Column(

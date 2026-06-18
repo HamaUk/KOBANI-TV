@@ -15,11 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 
 object UltraTokens {
     // Accent
-    val Accent       = Color(0xFFFF3A2F)
-    val Accent2      = Color(0xFFFF6A4A)
-    val AccentGlow   = Color(0x8CFF3A2F)
-    val AccentSoft   = Color(0x24FF3A2F)  // ~14% — pill highlights
-    val AccentTint   = Color(0x1AFF3A2F)  // ~10% — gradient stops
+    val Accent       = Color(0xFF3B82F6)  // Modern Blue
+    val Accent2      = Color(0xFF60A5FA)
+    val AccentGlow   = Color(0x8C3B82F6)
+    val AccentSoft   = Color(0x243B82F6)  // ~14% — pill highlights
+    val AccentTint   = Color(0x1A3B82F6)  // ~10% — gradient stops
 
     // Status
     val Live = Color(0xFFFF3A2F)

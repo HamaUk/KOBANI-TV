@@ -1,20 +1,23 @@
 package com.ultratv.tv.nativeapp.ui.onboarding
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.*
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.launch
+import com.ultratv.tv.nativeapp.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -29,16 +32,28 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0F172A)),
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(Color(0xFF1E293B), Color(0xFF0F172A)),
+                    radius = 800f
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
-                .width(400.dp)
-                .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
-                .padding(32.dp),
+                .width(420.dp)
+                .background(Color.White.copy(alpha = 0.03f), RoundedCornerShape(24.dp))
+                .padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.dom),
+                contentDescription = "Logo",
+                modifier = Modifier.height(80.dp),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "KOBANI 4K",
                 style = MaterialTheme.typography.headlineLarge,
@@ -47,7 +62,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Enter your activation code",
-                color = Color.White.copy(alpha = 0.7f)
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -55,15 +71,15 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
+                    .height(64.dp)
+                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = code.ifEmpty { "_____" },
                     color = if (code.isEmpty()) Color.Gray else Color.White,
-                    fontSize = 24.sp,
-                    letterSpacing = 8.sp
+                    fontSize = 28.sp,
+                    letterSpacing = 12.sp
                 )
             }
 
@@ -81,10 +97,11 @@ fun LoginScreen(
                 listOf("DEL", "0", "OK")
             )
 
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 for (row in keys) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         for (key in row) {
+                            val isOk = key == "OK"
                             Button(
                                 onClick = {
                                     errorMsg = null
@@ -143,17 +160,19 @@ fun LoginScreen(
                                 },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(60.dp),
-                                shape = ButtonDefaults.shape(shape = RoundedCornerShape(8.dp)),
+                                    .height(64.dp),
+                                shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp)),
                                 colors = ButtonDefaults.colors(
-                                    containerColor = if (key == "OK") Color(0xFFEAB308) else Color.White.copy(alpha = 0.1f),
-                                    contentColor = if (key == "OK") Color.Black else Color.White
+                                    containerColor = if (isOk) Color(0xFF3B82F6) else Color.White.copy(alpha = 0.08f),
+                                    contentColor = Color.White,
+                                    focusedContainerColor = if (isOk) Color(0xFF60A5FA) else Color.White.copy(alpha = 0.2f),
+                                    focusedContentColor = Color.White
                                 )
                             ) {
                                 Text(
                                     text = key,
-                                    fontSize = 20.sp,
-                                    color = if (key == "OK") Color.Black else Color.White
+                                    fontSize = 22.sp,
+                                    color = Color.White
                                 )
                             }
                         }
