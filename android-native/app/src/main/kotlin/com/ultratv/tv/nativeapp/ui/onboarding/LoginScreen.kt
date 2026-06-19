@@ -48,7 +48,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.dom),
+                painter = painterResource(id = R.drawable.ic_koba),
                 contentDescription = "Logo",
                 modifier = Modifier.height(56.dp),
                 contentScale = ContentScale.Fit

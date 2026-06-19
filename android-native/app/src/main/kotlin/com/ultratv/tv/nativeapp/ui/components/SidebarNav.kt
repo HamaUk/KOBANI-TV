@@ -94,7 +94,7 @@ fun SidebarNav(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.ultratv.tv.nativeapp.R.drawable.dom),
+                painter = androidx.compose.ui.res.painterResource(id = com.ultratv.tv.nativeapp.R.drawable.ic_koba),
                 contentDescription = "Logo",
                 modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp))
             )

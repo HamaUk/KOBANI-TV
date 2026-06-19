@@ -94,28 +94,28 @@ internal fun LiveDrawer(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSearch) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Search, contentDescription = "Search", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSearch) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Search, contentDescription = "Search", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onEpg) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.ViewList, contentDescription = "EPG", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onEpg) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.ViewList, contentDescription = "EPG", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onFav) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Favorite, contentDescription = "Favorites", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onFav) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Favorite, contentDescription = "Favorites", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSleep) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Timer, contentDescription = "Sleep", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSleep) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Timer, contentDescription = "Sleep", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onTracks) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Audiotrack, contentDescription = "Tracks", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onTracks) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Audiotrack, contentDescription = "Tracks", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onRecord) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.FiberManualRecord, contentDescription = "Record", tint = Color.Red) }
+                    androidx.tv.material3.IconButton(onClick = onRecord) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.FiberManualRecord, contentDescription = "Record", tint = Color.Red) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onAspect) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.AspectRatio, contentDescription = "Aspect Ratio", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onAspect) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSettings) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Settings, contentDescription = "Settings", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSettings) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Settings, contentDescription = "Settings", tint = Color.White) }
                 }
             }
 
