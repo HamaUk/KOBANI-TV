@@ -36,6 +36,15 @@ import com.ultratv.tv.nativeapp.ui.common.ChannelLogo
 import com.ultratv.tv.nativeapp.ui.theme.UltraFonts
 import com.ultratv.tv.nativeapp.ui.theme.UltraTokens
 import com.ultratv.tv.nativeapp.ui.theme.ultraCardColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ViewList
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.Settings
 
 /**
  * OTT-style channel-zap drawer used by the full-screen player. Slides in from
@@ -94,28 +103,28 @@ internal fun LiveDrawer(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSearch) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Search, contentDescription = "Search", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSearch) { androidx.tv.material3.Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onEpg) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.ViewList, contentDescription = "EPG", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onEpg) { androidx.tv.material3.Icon(Icons.Default.ViewList, contentDescription = "EPG", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onFav) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Favorite, contentDescription = "Favorites", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onFav) { androidx.tv.material3.Icon(Icons.Default.Favorite, contentDescription = "Favorites", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSleep) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Timer, contentDescription = "Sleep", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSleep) { androidx.tv.material3.Icon(Icons.Default.Timer, contentDescription = "Sleep", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onTracks) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Audiotrack, contentDescription = "Tracks", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onTracks) { androidx.tv.material3.Icon(Icons.Default.Audiotrack, contentDescription = "Tracks", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onRecord) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.FiberManualRecord, contentDescription = "Record", tint = Color.Red) }
+                    androidx.tv.material3.IconButton(onClick = onRecord) { androidx.tv.material3.Icon(Icons.Default.FiberManualRecord, contentDescription = "Record", tint = Color.Red) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onAspect) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onAspect) { androidx.tv.material3.Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", tint = Color.White) }
                 }
                 item {
-                    androidx.tv.material3.IconButton(onClick = onSettings) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.Settings, contentDescription = "Settings", tint = Color.White) }
+                    androidx.tv.material3.IconButton(onClick = onSettings) { androidx.tv.material3.Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White) }
                 }
             }
 
