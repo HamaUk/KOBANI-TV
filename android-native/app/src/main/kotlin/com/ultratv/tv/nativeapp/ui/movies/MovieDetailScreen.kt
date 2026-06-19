@@ -77,6 +77,7 @@ class MovieDetailViewModel @Inject constructor(
             ))
             onReady(m.streamUrl, m.name)
             return
+        }
         viewModelScope.launch {
             try {
                 val resolved = provider.resolveStalkerUrl(m.providerId, m.streamUrl)

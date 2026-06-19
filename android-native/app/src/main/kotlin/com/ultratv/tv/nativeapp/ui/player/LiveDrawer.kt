@@ -235,6 +235,7 @@ internal fun LiveDrawer(
                 }
             }
         }
+        }
         
         // Right side click-through area to dismiss
         Box(
