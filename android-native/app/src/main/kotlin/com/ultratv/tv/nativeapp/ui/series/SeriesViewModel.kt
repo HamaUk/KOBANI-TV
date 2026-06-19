@@ -154,8 +154,13 @@ class SeriesDetailViewModel @Inject constructor(
             register(episode.streamUrl); onReady(episode.streamUrl, title); return
         }
         viewModelScope.launch {
-            val resolved = provider.resolveStalkerUrl(providerId, episode.streamUrl)
-            register(resolved); onReady(resolved, title)
+            try {
+                val resolved = provider.resolveStalkerUrl(providerId, episode.streamUrl)
+                register(resolved); onReady(resolved, title)
+            } catch (e: Exception) {
+                com.ultratv.tv.nativeapp.RemoteLog.error("series", "Stalker resolve failed: ${e.message}")
+                com.ultratv.tv.nativeapp.ui.common.Toaster.err("Failed to play episode stream")
+            }
         }
     }
 

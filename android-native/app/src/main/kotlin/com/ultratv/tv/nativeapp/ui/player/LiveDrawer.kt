@@ -53,6 +53,14 @@ internal fun LiveDrawer(
     vm: PlayerViewModel,
     onPick: (com.ultratv.tv.nativeapp.data.db.ChannelEntity) -> Unit,
     onDismiss: () -> Unit,
+    onSearch: () -> Unit = {},
+    onEpg: () -> Unit = {},
+    onFav: () -> Unit = {},
+    onSleep: () -> Unit = {},
+    onTracks: () -> Unit = {},
+    onRecord: () -> Unit = {},
+    onAspect: () -> Unit = {},
+    onSettings: () -> Unit = {},
 ) {
     val entries by vm.queue.collectAsState()
     val s = LocalStrings.current
@@ -60,46 +68,80 @@ internal fun LiveDrawer(
     val f = UltraFonts
     BackHandler { onDismiss() }
     Row(Modifier.fillMaxSize()) {
-        // Click-through area on the left so OK / BACK reach us first.
-        Box(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(Color(0x66000000))
-        )
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(480.dp)
-                .clip(RoundedCornerShape(topStart = 32.dp, bottomStart = 32.dp))
+                .clip(RoundedCornerShape(topEnd = 32.dp, bottomEnd = 32.dp))
                 .background(
                     androidx.compose.ui.graphics.Brush.horizontalGradient(
-                        listOf(Color(0xF00A0A12), Color(0xFA000000))
+                        listOf(Color(0xFA000000), Color(0xF00A0A12))
                     )
                 )
                 .border(
                     1.dp,
                     Color.White.copy(alpha = 0.05f),
-                    RoundedCornerShape(topStart = 32.dp, bottomStart = 32.dp)
+                    RoundedCornerShape(topEnd = 32.dp, bottomEnd = 32.dp)
                 )
-                .padding(horizontal = 32.dp, vertical = 40.dp),
         ) {
-            Text(
-                s.liveZappingEyebrow,
-                color = t.Accent,
-                fontSize = 12.sp,
-                letterSpacing = 3.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                s.liveAllChannels,
-                color = Color.White,
-                fontFamily = f.Serif,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(Modifier.height(24.dp))
+            // Left vertical icon menu
+            LazyColumn(
+                modifier = Modifier
+                    .width(72.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFF08080C))
+                    .padding(vertical = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item {
+                    androidx.tv.material3.IconButton(onClick = onSearch) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Search, contentDescription = "Search", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onEpg) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.ViewList, contentDescription = "EPG", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onFav) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Favorite, contentDescription = "Favorites", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onSleep) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Timer, contentDescription = "Sleep", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onTracks) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Audiotrack, contentDescription = "Tracks", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onRecord) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.FiberManualRecord, contentDescription = "Record", tint = Color.Red) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onAspect) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.AspectRatio, contentDescription = "Aspect Ratio", tint = Color.White) }
+                }
+                item {
+                    androidx.tv.material3.IconButton(onClick = onSettings) { androidx.tv.material3.Icon(androidx.compose.material.icons.Icons.Default.androidx.compose.material.icons.filled.Settings, contentDescription = "Settings", tint = Color.White) }
+                }
+            }
+
+            // Channel List Column
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(420.dp)
+                    .padding(horizontal = 24.dp, vertical = 40.dp),
+            ) {
+                Text(
+                    s.liveZappingEyebrow,
+                    color = t.Accent,
+                    fontSize = 12.sp,
+                    letterSpacing = 3.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    s.liveAllChannels,
+                    color = Color.White,
+                    fontFamily = f.Serif,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(Modifier.height(24.dp))
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -135,6 +177,7 @@ internal fun LiveDrawer(
                                 name = e.channel.name,
                                 logoUrl = e.channel.logo,
                                 short = null,
+                                epgChannelId = e.channel.epgChannelId,
                                 hueSeed = e.channel.name.hashCode(),
                                 hd = null,
                                 size = 44.dp,
@@ -192,5 +235,13 @@ internal fun LiveDrawer(
                 }
             }
         }
+        
+        // Right side click-through area to dismiss
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(Color(0x66000000))
+        )
     }
 }

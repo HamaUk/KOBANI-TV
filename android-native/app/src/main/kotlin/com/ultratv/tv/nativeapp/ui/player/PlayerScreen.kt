@@ -234,6 +234,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     var tracksOpen by remember { mutableStateOf(false) }
     var drawerOpen by remember { mutableStateOf(false) }
     var displayMenu by remember { mutableStateOf(false) }
+    var sleepMenu by remember { mutableStateOf(false) }
     var aspectMode by remember { mutableStateOf(AspectMode.Fit) }
     var playbackSpeed by remember { mutableStateOf(1.0f) }
     val S = com.ultratv.tv.nativeapp.i18n.LocalStrings.current
@@ -427,17 +428,16 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
         }
     }
 
-    var showOverlay by remember { mutableStateOf(true) }
-    var overlayResetKey by remember { mutableIntStateOf(0) }
-    LaunchedEffect(showOverlay, overlayResetKey) {
-        if (showOverlay) {
-            delay(8000)
+    var showOverlay by remember(isLive) { mutableStateOf(!isLive) }
+    LaunchedEffect(showOverlay) {
+        if (showOverlay && !isLive) {
+            delay(5000)
             showOverlay = false
         }
     }
 
-    // D-pad UP/DOWN = channel zap on Live. The PlayerView eats LEFT/RIGHT for
-    // seek when useController = true, which is what we want for VOD.
+    // D-pad UP/DOWN = channel zap on Live (always, no waiting).
+    // OK = toggle zap drawer.
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     Box(
@@ -448,11 +448,11 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
             .focusable()
             .onKeyEvent { ev ->
                 if (ev.type != KeyEventType.KeyDown) return@onKeyEvent false
-                val wasOverlayHidden = !showOverlay
-                showOverlay = true
-                overlayResetKey++   // reset the 8-second auto-hide timer
 
-                if (!isLive) return@onKeyEvent false
+                if (!isLive) {
+                    showOverlay = true
+                    return@onKeyEvent false
+                }
 
                 // Channel-Up / Channel-Down hardware keys always zap
                 if (ev.key == Key.ChannelUp || ev.key == Key.ChannelDown) {
@@ -465,41 +465,33 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                     return@onKeyEvent true
                 }
 
-                if (wasOverlayHidden) {
-                    // Overlay was hidden → D-pad UP/DOWN zap channels
-                    if (ev.key == Key.DirectionUp) {
-                        scope.launch {
-                            vm.zap(forward = false)?.let {
-                                currentUrl = it
-                                currentTitle = vm.current.value?.title ?: currentTitle
-                            }
+                // D-pad UP/DOWN always zap channels instantly
+                if (ev.key == Key.DirectionUp) {
+                    scope.launch {
+                        vm.zap(forward = false)?.let {
+                            currentUrl = it
+                            currentTitle = vm.current.value?.title ?: currentTitle
                         }
-                        return@onKeyEvent true
                     }
-                    if (ev.key == Key.DirectionDown) {
-                        scope.launch {
-                            vm.zap(forward = true)?.let {
-                                currentUrl = it
-                                currentTitle = vm.current.value?.title ?: currentTitle
-                            }
-                        }
-                        return@onKeyEvent true
-                    }
-                    // First OK press just shows overlay (already set above)
-                    if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
-                        return@onKeyEvent true
-                    }
-                    return@onKeyEvent false
-                } else {
-                    // Overlay IS visible → let D-pad UP/DOWN/LEFT/RIGHT pass
-                    // through so Compose focus navigation reaches the buttons.
-                    // Only intercept OK to open the zap drawer.
-                    if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
-                        drawerOpen = !drawerOpen
-                        return@onKeyEvent true
-                    }
-                    return@onKeyEvent false
+                    return@onKeyEvent true
                 }
+                if (ev.key == Key.DirectionDown) {
+                    scope.launch {
+                        vm.zap(forward = true)?.let {
+                            currentUrl = it
+                            currentTitle = vm.current.value?.title ?: currentTitle
+                        }
+                    }
+                    return@onKeyEvent true
+                }
+
+                // OK / Enter = toggle zap drawer
+                if (ev.key == Key.DirectionCenter || ev.key == Key.Enter) {
+                    drawerOpen = !drawerOpen
+                    return@onKeyEvent true
+                }
+
+                return@onKeyEvent false
             },
     ) {
         AndroidView(
@@ -616,7 +608,6 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 maxItemsInEachRow = 4,
             ) {
                 // Sleep timer menu — anchored bottom-right next to the external-player button.
-                var sleepMenu by remember { mutableStateOf(false) }
                 Button(onClick = { sleepMenu = !sleepMenu }) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Icon(Icons.Default.Timer, contentDescription = "Sleep", modifier = Modifier.size(16.dp))
@@ -628,22 +619,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                         )
                     }
                 }
-                if (sleepMenu) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .background(Color(0xCC000000), androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-                            .padding(10.dp),
-                    ) {
-                        SleepOption(S.sleepMin15) { sleepDeadlineMs = System.currentTimeMillis() + 15 * 60_000; sleepMenu = false }
-                        SleepOption(S.sleepMin30) { sleepDeadlineMs = System.currentTimeMillis() + 30 * 60_000; sleepMenu = false }
-                        SleepOption(S.sleep1h) { sleepDeadlineMs = System.currentTimeMillis() + 60 * 60_000; sleepMenu = false }
-                        SleepOption(S.sleep2h) { sleepDeadlineMs = System.currentTimeMillis() + 120 * 60_000; sleepMenu = false }
-                        if (sleepDeadlineMs > 0L) {
-                            SleepOption(S.sleepCancel) { sleepDeadlineMs = 0L; sleepMenu = false }
-                        }
-                    }
-                }
+
                 
                 Button(onClick = { tracksOpen = true }) { 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -710,6 +686,23 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 }
             }
         }
+        if (sleepMenu) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 24.dp, bottom = 70.dp)
+                    .background(Color(0xCC000000), RoundedCornerShape(10.dp))
+                    .padding(10.dp),
+            ) {
+                SleepOption(S.sleepMin15) { sleepDeadlineMs = System.currentTimeMillis() + 15 * 60_000; sleepMenu = false }
+                SleepOption(S.sleepMin30) { sleepDeadlineMs = System.currentTimeMillis() + 30 * 60_000; sleepMenu = false }
+                SleepOption(S.sleep1h) { sleepDeadlineMs = System.currentTimeMillis() + 60 * 60_000; sleepMenu = false }
+                SleepOption(S.sleep2h) { sleepDeadlineMs = System.currentTimeMillis() + 120 * 60_000; sleepMenu = false }
+                if (sleepDeadlineMs > 0L) {
+                    SleepOption(S.sleepCancel) { sleepDeadlineMs = 0L; sleepMenu = false }
+                }
+            }
+        }
         if (displayMenu) {
             Column(
                 modifier = Modifier
@@ -752,6 +745,14 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                     }
                 },
                 onDismiss = { drawerOpen = false },
+                onSearch = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Search") /* TODO: navigate search */ },
+                onEpg = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("EPG") /* TODO: navigate EPG */ },
+                onFav = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Added to Favorites") },
+                onSleep = { sleepMenu = true; drawerOpen = false },
+                onTracks = { tracksOpen = true; drawerOpen = false },
+                onRecord = { vm.recordLive(120, S.recordingQueuedTemplate); drawerOpen = false },
+                onAspect = { displayMenu = true; drawerOpen = false },
+                onSettings = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Settings") /* TODO: navigate settings */ }
             )
         }
         if (tracksOpen) {

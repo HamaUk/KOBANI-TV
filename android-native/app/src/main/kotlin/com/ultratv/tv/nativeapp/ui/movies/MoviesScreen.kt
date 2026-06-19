@@ -54,34 +54,15 @@ fun MoviesScreen(onOpen: (Long) -> Unit, vm: MoviesViewModel = hiltViewModel()) 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
     ) {
-        if (railsMode && featured != null) {
-            HeroBanner(
-                eyebrow = "Film du moment",
-                title = featured!!.name,
-                subtitle = featured!!.plot,
-                synopsis = null,
-                meta = listOfNotNull(
-                    featured!!.year?.toString(),
-                    featured!!.rating?.let { "★ %.1f".format(it) },
-                    featured!!.container?.uppercase(),
-                ),
-                image = featured!!.poster,
-                primaryLabel = S.open,
-                onPrimary = { onOpen(featured!!.id) },
-                secondaryLabel = "Plus d'infos",
-                onSecondary = { onOpen(featured!!.id) },
-            )
-        } else {
-            Spacer(Modifier.height(60.dp))
-            Text(
-                S.moviesTitle,
-                fontFamily = com.ultratv.tv.nativeapp.ui.theme.UltraFonts.Serif,
-                fontSize = 64.sp,
-                letterSpacing = (-1.5).sp,
-                color = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.Fg,
-                modifier = Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter),
-            )
-        }
+        Spacer(Modifier.height(24.dp))
+        Text(
+            S.moviesTitle,
+            fontFamily = com.ultratv.tv.nativeapp.ui.theme.UltraFonts.Serif,
+            fontSize = 36.sp,
+            letterSpacing = (-1).sp,
+            color = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.Fg,
+            modifier = Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter),
+        )
         Spacer(Modifier.height(20.dp))
         Column(Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter, bottom = 12.dp)) {
             CategoryChips(categories = cats, selected = sel, onSelect = vm::selectCategory)

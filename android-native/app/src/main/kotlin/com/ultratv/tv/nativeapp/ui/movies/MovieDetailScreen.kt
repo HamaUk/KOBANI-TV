@@ -77,14 +77,18 @@ class MovieDetailViewModel @Inject constructor(
             ))
             onReady(m.streamUrl, m.name)
             return
-        }
         viewModelScope.launch {
-            val resolved = provider.resolveStalkerUrl(m.providerId, m.streamUrl)
-            playback.set(PlaybackContext.Item(
-                providerId = m.providerId, kind = "MOVIE", remoteId = m.remoteId,
-                title = m.name, poster = m.poster, streamUrl = resolved,
-            ))
-            onReady(resolved, m.name)
+            try {
+                val resolved = provider.resolveStalkerUrl(m.providerId, m.streamUrl)
+                playback.set(PlaybackContext.Item(
+                    providerId = m.providerId, kind = "MOVIE", remoteId = m.remoteId,
+                    title = m.name, poster = m.poster, streamUrl = resolved,
+                ))
+                onReady(resolved, m.name)
+            } catch (e: Exception) {
+                com.ultratv.tv.nativeapp.RemoteLog.error("movie", "Stalker resolve failed: ${e.message}")
+                com.ultratv.tv.nativeapp.ui.common.Toaster.err("Failed to play movie stream")
+            }
         }
     }
 }
