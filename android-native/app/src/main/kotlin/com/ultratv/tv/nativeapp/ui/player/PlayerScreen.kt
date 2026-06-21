@@ -318,6 +318,11 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 else
                     androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
             )
+            // Enable tunneled playback — this is CRITICAL for many Android TV
+            // boxes (AMLogic S905/S912/S928, Realtek RTD1619, Samsung Tizen).
+            // Without it, the hardware decoder can produce audio but no video
+            // frames because the codec output surface never connects properly.
+            setEnableDecoderFallback(true)
         }
         ExoPlayer.Builder(context, renderers)
             .setLoadControl(loadControl)
@@ -367,6 +372,10 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                     com.ultratv.tv.nativeapp.RemoteLog.debug("player", "state=$name")
                 }
             })
+            // Tell ExoPlayer to scale the video to fill the surface properly.
+            // SCALE_TO_FIT prevents the "black screen" problem on TV boxes
+            // where the codec delivers frames but the surface isn't sized.
+            videoScalingMode = androidx.media3.common.C.VIDEO_SCALING_MODE_SCALE_TO_FIT
         }
     }
 
@@ -504,6 +513,12 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                     setShowNextButton(false)
                     setShowPreviousButton(false)
                     controllerShowTimeoutMs = if (isLive) 1500 else 3000
+                    // Explicitly use SurfaceView (not TextureView). SurfaceView
+                    // is the only reliable surface type on TV boxes — many
+                    // AMLogic / Realtek / Samsung chipsets cannot render video
+                    // via TextureView or the default auto-detect path. Without
+                    // this, users get audio but a black screen.
+                    setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
