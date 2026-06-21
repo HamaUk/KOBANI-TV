@@ -43,10 +43,13 @@ import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
-import androidx.media3.exoplayer.trackselection.TrackSelectionOverride
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import androidx.tv.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+
 import com.ultratv.tv.nativeapp.RemoteLog
 import com.ultratv.tv.nativeapp.data.prefs.UserPrefs
 import kotlinx.coroutines.delay
@@ -441,9 +444,10 @@ fun AdvancedVideoPlayer(
                     .clickable { settingsMenuVisible = false },
                 contentAlignment = Alignment.Center
             ) {
-                Card(
-                    modifier = Modifier.width(400.dp).clickable(enabled = false) {},
-                    colors = CardDefaults.colors(containerColor = MaterialTheme.colorScheme.surface)
+                Surface(
+                    modifier = Modifier.width(400.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     LazyColumn(Modifier.padding(16.dp)) {
                         item {

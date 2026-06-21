@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.focusGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -195,8 +197,8 @@ internal fun LiveDrawer(
                     .fillMaxHeight()
                     .background(Color(0xFF0B0A12)) // Slightly darker for sidebar
                     .padding(vertical = 24.dp)
-                    .androidx.compose.foundation.focusGroup()
-                    .verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    .focusGroup()
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
