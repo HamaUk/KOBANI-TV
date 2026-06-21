@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -62,7 +63,7 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 
-@OptIn(androidx.media3.common.util.UnstableApi::class)
+@androidx.media3.common.util.UnstableApi
 @Composable
 fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MoviePlayerViewModel = hiltViewModel()) {
     val context = LocalContext.current

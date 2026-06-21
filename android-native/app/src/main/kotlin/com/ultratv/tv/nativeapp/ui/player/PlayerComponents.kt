@@ -142,7 +142,7 @@ data class StreamStats(
     val droppedFrames: String = "—",
 ) {
     companion object {
-        @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+        @androidx.media3.common.util.UnstableApi
         fun read(player: ExoPlayer): StreamStats {
             val v = player.videoFormat
             val a = player.audioFormat

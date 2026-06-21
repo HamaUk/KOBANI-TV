@@ -221,7 +221,7 @@ class PlayerViewModel @Inject constructor(
     }
 }
 
-@OptIn(androidx.media3.common.util.UnstableApi::class)
+@androidx.media3.common.util.UnstableApi
 @Composable
 fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewModel = hiltViewModel()) {
     val context = LocalContext.current
