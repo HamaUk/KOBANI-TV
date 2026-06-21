@@ -57,7 +57,7 @@ ijkplayer-java = { module = "tv.danmaku.ijk.media:ijkplayer-java", version.ref =
 ijkplayer-armv7a = { module = "tv.danmaku.ijk.media:ijkplayer-armv7a", version.ref = "ijkplayer" }
 ijkplayer-arm64 = { module = "tv.danmaku.ijk.media:ijkplayer-arm64", version.ref = "ijkplayer" }
 ijkplayer-x86 = { module = "tv.danmaku.ijk.media:ijkplayer-x86", version.ref = "ijkplayer" }
-ijkplayer-x86_64 = { module = "tv.danmaku.ijk.media:ijkplayer-x86_64", version.ref = "ijkplayer" }
+ijkplayer-x8664 = { module = "tv.danmaku.ijk.media:ijkplayer-x86_64", version.ref = "ijkplayer" }
 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }

@@ -205,7 +205,7 @@ dependencies {
     implementation(libs.ijkplayer.armv7a)
     implementation(libs.ijkplayer.arm64)
     implementation(libs.ijkplayer.x86)
-    implementation(libs.ijkplayer.x86.64)
+    implementation(libs.ijkplayer.x8664)
 
 
     implementation(libs.room.runtime)
