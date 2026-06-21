@@ -69,28 +69,44 @@ fun HomeScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState()),
     ) {
-        // Welcome state
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(start = UltraTokens.EdgeGutter, top = 40.dp, end = UltraTokens.EdgeGutter),
-        ) {
-            Text(
-                "KOBANI 4K",
-                fontFamily = UltraFonts.Serif,
-                fontSize = 50.sp,
-                lineHeight = 54.sp,
-                color = UltraTokens.Fg,
+        // Featured Hero Banner
+        if (movies.isNotEmpty()) {
+            val hero = movies.first()
+            HeroBanner(
+                title = hero.name,
+                subtitle = hero.year?.toString() ?: "",
+                eyebrow = "FEATURED MOVIE",
+                image = hero.poster,
+                synopsis = hero.plot,
+                primaryLabel = "Play",
+                onPrimary = { onPlay(hero.streamUrl, hero.name) },
+                secondaryLabel = "Details",
+                onSecondary = { onOpenMovie(hero.id) }
             )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Dashboard",
-                color = UltraTokens.Fg2,
-                fontSize = 18.sp,
-            )
+            Spacer(Modifier.height(40.dp))
+        } else {
+            // Welcome state fallback
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = UltraTokens.EdgeGutter, top = 40.dp, end = UltraTokens.EdgeGutter),
+            ) {
+                Text(
+                    "KOBANI 4K",
+                    fontFamily = UltraFonts.Serif,
+                    fontSize = 50.sp,
+                    lineHeight = 54.sp,
+                    color = UltraTokens.Fg,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Dashboard",
+                    color = UltraTokens.Fg2,
+                    fontSize = 18.sp,
+                )
+            }
+            Spacer(Modifier.height(40.dp))
         }
-
-        Spacer(Modifier.height(40.dp))
 
         if (channels.isNotEmpty()) {
             ContentRail(

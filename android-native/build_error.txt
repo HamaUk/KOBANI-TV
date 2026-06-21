@@ -1,0 +1,3 @@
+﻿Starting a Gradle Daemon, 2 incompatible and 6 stopped Daemons could not be reused, use --status for details
+Calculating task graph as configuration cache cannot be reused because JVM has changed.
+Configuration cache entry stored.

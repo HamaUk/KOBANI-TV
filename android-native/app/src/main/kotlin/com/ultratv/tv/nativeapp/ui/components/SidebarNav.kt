@@ -72,22 +72,16 @@ fun SidebarNav(navController: NavController) {
     // returning to the sidebar with the left D-pad.
     val expanded = width >= 170.dp
 
-    Column(
-        Modifier
-            .fillMaxHeight()
-            .width(width)
-            .background(
-                Brush.horizontalGradient(
-                    0f to UltraTokens.ScrimStrong,
-                    0.7f to UltraTokens.Scrim,
-                    1f to Color.Transparent,
-                )
-            )
-            .onFocusChanged { anyFocused = it.hasFocus }
-            .verticalScroll(rememberScrollState())
-            .padding(top = 40.dp, bottom = 30.dp),
-        verticalArrangement = Arrangement.Top,
-    ) {
+        Column(
+            Modifier
+                .fillMaxHeight()
+                .width(width)
+                .background(Color(0xFF0B0A12)) // ZinaTV Dark Navy sidebar
+                .onFocusChanged { anyFocused = it.hasFocus }
+                .verticalScroll(rememberScrollState())
+                .padding(top = 40.dp, bottom = 30.dp),
+            verticalArrangement = Arrangement.Top,
+        ) {
         // Logo
         Row(
             Modifier.padding(horizontal = 28.dp).padding(bottom = 40.dp),
@@ -144,11 +138,11 @@ private fun SidebarItem(
     val focused by interaction.collectIsFocusedAsState()
     val highlight = focused || selected
     val bg = when {
-        focused -> UltraTokens.SurfaceStrong
-        selected -> UltraTokens.AccentSoft
+        focused -> UltraTokens.Accent
+        selected -> UltraTokens.Accent
         else -> Color.Transparent
     }
-    val fg = if (highlight) UltraTokens.Fg else UltraTokens.Fg3
+    val fg = if (highlight) Color.White else UltraTokens.Fg3
     Box(Modifier.padding(horizontal = 18.dp)) {
         Row(
             Modifier
@@ -158,14 +152,6 @@ private fun SidebarItem(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (selected || focused) {
-                Box(
-                    Modifier
-                        .size(width = 3.dp, height = 22.dp)
-                        .background(UltraTokens.Accent, RoundedCornerShape(2.dp))
-                )
-                Spacer(Modifier.width(12.dp))
-            }
             UltraIcon(icon, size = 22.dp, color = fg)
             if (expanded) {
                 Spacer(Modifier.width(16.dp))

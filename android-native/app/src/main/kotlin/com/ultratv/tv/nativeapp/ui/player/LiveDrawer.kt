@@ -105,78 +105,35 @@ internal fun LiveDrawer(
         Row(
             modifier = Modifier
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(topEnd = 32.dp, bottomEnd = 32.dp))
-                .background(
-                    androidx.compose.ui.graphics.Brush.horizontalGradient(
-                        listOf(Color(0xFA000000), Color(0xF00A0A12))
-                    )
-                )
-                .border(
-                    1.dp,
-                    Color.White.copy(alpha = 0.05f),
-                    RoundedCornerShape(topEnd = 32.dp, bottomEnd = 32.dp)
-                )
+                .background(Color(0xE60F0E17)) // ZinaTV Dark Navy semi-transparent
         ) {
-            // -- Left vertical icon menu --
-            // Uses a regular Column (not LazyColumn) because there are only
-            // 8 buttons -- simpler focus handling and they all fit on screen.
-            Column(
-                modifier = Modifier
-                    .width(72.dp)
-                    .fillMaxHeight()
-                    .background(Color(0xFF08080C))
-                    .padding(vertical = 40.dp)
-                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
-                    .focusRequester(iconMenuFocus)
-                    .focusProperties {
-                        // D-pad RIGHT -> jump to channel list
-                        right = channelListFocus
-                        // Don't let LEFT escape the drawer
-                        left = androidx.compose.ui.focus.FocusRequester.Cancel
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                DrawerIconButton(Icons.Default.Search, "Search", onClick = onSearch)
-                DrawerIconButton(Icons.Default.ViewList, "EPG", onClick = onEpg)
-                DrawerIconButton(Icons.Default.Favorite, "Favorites", onClick = onFav)
-                DrawerIconButton(Icons.Default.Timer, "Sleep", onClick = onSleep)
-                DrawerIconButton(Icons.Default.Audiotrack, "Tracks", onClick = onTracks)
-                DrawerIconButton(Icons.Default.FiberManualRecord, "Record", onClick = onRecord, tint = Color.Red)
-                DrawerIconButton(Icons.Default.AspectRatio, "Aspect", onClick = onAspect)
-                DrawerIconButton(Icons.Default.Settings, "Settings", onClick = onSettings)
-            }
-
-            // -- Channel List --
+            // -- Channel List (Left Side in ZinaTV) --
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(420.dp)
-                    .padding(horizontal = 24.dp, vertical = 40.dp),
+                    .width(360.dp)
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
             ) {
-                Text(
-                    s.liveZappingEyebrow,
-                    color = t.Accent,
-                    fontSize = 12.sp,
-                    letterSpacing = 3.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    s.liveAllChannels,
-                    color = Color.White,
-                    fontFamily = f.Serif,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "All Channels",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
                         .focusRequester(channelListFocus)
                         .focusProperties {
-                            // D-pad LEFT -> jump to icon menu
-                            left = iconMenuFocus
+                            // D-pad RIGHT -> jump to icon menu
+                            right = iconMenuFocus
                         },
                 ) {
                     items(items = entries, key = { entry -> entry.channel.id }) { e ->
@@ -188,86 +145,72 @@ internal fun LiveDrawer(
                         Card(
                             onClick = { onPick(e.channel) },
                             interactionSource = interaction,
-                            shape = CardDefaults.shape(RoundedCornerShape(16.dp)),
+                            shape = CardDefaults.shape(RoundedCornerShape(4.dp)),
                             colors = ultraCardColors(
-                                containerColor = if (e.isCurrent) t.AccentSoft else Color(0x1AFFFFFF),
+                                containerColor = if (e.isCurrent) t.Accent else Color.Transparent,
                                 focusedContainerColor = t.Accent,
                                 focusedContentColor = Color.White,
                             ),
                         ) {
                             Row(
-                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    "%02d".format(idx + 1),
-                                    color = if (highlight) Color.White else t.Fg4,
+                                    (idx + 1).toString(),
+                                    color = if (highlight) Color.White else Color.White,
                                     fontSize = 14.sp,
-                                    fontFamily = f.Mono,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.width(36.dp),
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.width(32.dp),
                                 )
-                                ChannelLogo(
-                                    name = e.channel.name,
-                                    logoUrl = e.channel.logo,
-                                    short = null,
-                                    epgChannelId = e.channel.epgChannelId,
-                                    hueSeed = e.channel.name.hashCode(),
-                                    hd = null,
-                                    size = 44.dp,
-                                    showBadge = false,
-                                )
-                                Spacer(Modifier.width(16.dp))
+                                Spacer(Modifier.width(8.dp))
                                 Column(Modifier.weight(1f)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            e.channel.name,
-                                            color = if (highlight) Color.White else t.Fg2,
-                                            fontSize = 15.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                        )
-                                        if (e.isCurrent) {
-                                            Spacer(Modifier.width(8.dp))
-                                            Box(
-                                                Modifier
-                                                    .clip(RoundedCornerShape(6.dp))
-                                                    .background(if (focused) Color.White else t.Accent)
-                                                    .padding(horizontal = 6.dp, vertical = 2.dp),
-                                            ) {
-                                                Text(
-                                                    s.liveOnAirPill,
-                                                    color = if (focused) t.Accent else Color.White,
-                                                    fontSize = 9.sp,
-                                                    letterSpacing = 0.5.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
-                                            }
-                                        }
-                                    }
-                                    if (e.now != null) {
-                                        Spacer(Modifier.height(2.dp))
-                                        Text(
-                                            e.now.title,
-                                            color = if (highlight) Color.White else t.Fg3,
-                                            fontSize = 12.sp,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    if (e.next != null) {
-                                        Spacer(Modifier.height(2.dp))
-                                        Text(
-                                            "${s.liveThen} ${e.next.title}",
-                                            color = if (highlight) Color.White.copy(alpha = 0.7f) else t.Fg4,
-                                            fontSize = 11.sp,
-                                            maxLines = 1,
-                                        )
-                                    }
+                                    Text(
+                                        e.channel.name,
+                                        color = if (highlight) Color.White else Color.White,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        maxLines = 1,
+                                    )
                                 }
+                                Icon(
+                                    Icons.Default.Favorite,
+                                    contentDescription = "Favorite",
+                                    tint = if (highlight) Color.White else Color.White.copy(alpha=0.7f),
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
                     }
                 }
+            }
+
+            // -- Right vertical icon menu (ZinaTV Style) --
+            Column(
+                modifier = Modifier
+                    .width(72.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFF0B0A12)) // Slightly darker for sidebar
+                    .padding(vertical = 24.dp)
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                    .focusRequester(iconMenuFocus)
+                    .focusProperties {
+                        // D-pad LEFT -> jump back to channel list
+                        left = channelListFocus
+                        // Don't let RIGHT escape the drawer
+                        right = androidx.compose.ui.focus.FocusRequester.Cancel
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                DrawerIconButton(Icons.Default.Search, "Search", onClick = onSearch)
+                DrawerIconButton(Icons.Default.ViewList, "EPG", onClick = onEpg)
+                DrawerIconButton(Icons.Default.Favorite, "Add to Fav", onClick = onFav)
+                DrawerIconButton(Icons.Default.Timer, "Time Shift", onClick = onSleep)
+                DrawerIconButton(Icons.Default.Audiotrack, "Tracks", onClick = onTracks)
+                DrawerIconButton(Icons.Default.FiberManualRecord, "Record", onClick = onRecord, tint = Color.Red)
+                DrawerIconButton(Icons.Default.AspectRatio, "Aspect", onClick = onAspect)
+                DrawerIconButton(Icons.Default.Settings, "Settings", onClick = onSettings)
             }
         }
 
@@ -276,7 +219,7 @@ internal fun LiveDrawer(
             Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(Color(0x66000000))
+                .background(Color(0x33000000))
         )
     }
 }

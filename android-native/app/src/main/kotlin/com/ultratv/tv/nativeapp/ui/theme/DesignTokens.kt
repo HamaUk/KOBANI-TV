@@ -15,11 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 
 object UltraTokens {
     // Accent
-    val Accent       = Color(0xFF3B82F6)  // Modern Blue
-    val Accent2      = Color(0xFF60A5FA)
-    val AccentGlow   = Color(0x8C3B82F6)
-    val AccentSoft   = Color(0x243B82F6)  // ~14% — pill highlights
-    val AccentTint   = Color(0x1A3B82F6)  // ~10% — gradient stops
+    val Accent       = Color(0xFF3881A1)  // ZinaTV Blue
+    val Accent2      = Color(0xFF51AAFF)
+    val AccentGlow   = Color(0x8C3881A1)
+    val AccentSoft   = Color(0x243881A1)  // ~14% — pill highlights
+    val AccentTint   = Color(0x1A3881A1)  // ~10% — gradient stops
 
     // Status
     val Live = Color(0xFFFF3A2F)
@@ -29,7 +29,7 @@ object UltraTokens {
     val Warn = Color(0xFFFFB547)
 
     // Neutrals — AMOLED defaults; theme variants override Bg0/1/2 in Theme.kt
-    val Fg  = Color(0xFFF5F5F7)
+    val Fg  = Color(0xFFE4E4E4)
     val Fg2 = Color(0xFFC7C7CF)
     val Fg3 = Color(0xFF8A8A94)
     val Fg4 = Color(0xFF5A5A64)
@@ -38,16 +38,16 @@ object UltraTokens {
     val Line2 = Color(0x24FFFFFF)   // 14%
 
     // Surfaces — overlays on top of bg-0
-    val Surface1      = Color(0x0AFFFFFF) // 4%
-    val Surface2      = Color(0x0FFFFFFF) // 6%
-    val Surface3      = Color(0x14FFFFFF) // 8%
-    val SurfaceStrong = Color(0x24FFFFFF) // 14%
+    val Surface1      = Color(0xFF121319) // Zina Surface 1
+    val Surface2      = Color(0xFF202020) // Zina Surface 2
+    val Surface3      = Color(0xFF3C3C3C) // Zina Surface 3
+    val SurfaceStrong = Color(0xFF424242) // Zina Surface Strong
     val Scrim         = Color(0x73000000) // 45%
     val ScrimStrong   = Color(0xD9000000) // 85%
 
     // CTA
-    val CtaBg        = Color(0xFFFFFFFF)
-    val CtaFgOnCta   = Color(0xFF0A0A0D)
+    val CtaBg        = Color(0xFFF79E0A) // Zina Orange
+    val CtaFgOnCta   = Color(0xFF0F0E17)
 
     // Radii
     val RadiusXs: Dp = 6.dp
