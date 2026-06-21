@@ -29,7 +29,6 @@ import com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine
 
 import com.ultratv.tv.nativeapp.data.prefs.SidebarPosition
 import com.ultratv.tv.nativeapp.data.prefs.AppTheme
-import com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine
 
 import com.ultratv.tv.nativeapp.ui.AppViewModel
 
