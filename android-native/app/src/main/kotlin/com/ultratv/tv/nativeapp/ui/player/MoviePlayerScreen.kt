@@ -119,9 +119,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
             setEnableDecoderFallback(true)
         }
         
-        val trackSelector = androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context).apply {
-            parameters = buildUponParameters().setTunnelingEnabled(true).build()
-        }
+        val trackSelector = androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context)
         
         ExoPlayer.Builder(context, renderers)
             .setLoadControl(loadControl)
