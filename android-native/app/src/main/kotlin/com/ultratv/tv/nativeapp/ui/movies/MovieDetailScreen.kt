@@ -115,38 +115,39 @@ fun MovieDetailScreen(
     Row(
         Modifier
             .fillMaxSize()
-            .padding(start = 140.dp, end = 80.dp, top = 110.dp),
-        horizontalArrangement = Arrangement.spacedBy(50.dp),
+            .padding(start = 100.dp, end = 80.dp, top = 80.dp),
+        horizontalArrangement = Arrangement.spacedBy(40.dp),
     ) {
         Box(
             Modifier
-                .width(320.dp)
-                .height(480.dp)
-                .clip(RoundedCornerShape(18.dp)),
+                .width(240.dp)
+                .height(360.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .border(1.dp, T.Line2, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center,
         ) {
             if (movie.poster != null) AsyncImage(model = movie.poster, contentDescription = movie.name, modifier = Modifier.fillMaxSize())
-            else Text("🎬", fontSize = 80.sp)
+            else Text("🎬", fontSize = 60.sp)
         }
         Column(verticalArrangement = Arrangement.spacedBy(0.dp), modifier = Modifier.fillMaxSize()) {
             Text(
                 "FILM · ${movie.year ?: ""}".trim().removeSuffix("·").trim(),
                 color = T.Accent,
-                fontSize = 13.sp,
-                letterSpacing = 2.3.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                letterSpacing = 2.0.sp,
+                fontWeight = FontWeight.Bold,
             )
-            androidx.compose.foundation.layout.Spacer(Modifier.height(14.dp))
+            androidx.compose.foundation.layout.Spacer(Modifier.height(10.dp))
             Text(
                 movie.name,
                 fontFamily = F.Serif,
-                fontSize = 72.sp,
-                lineHeight = 70.sp,
-                letterSpacing = (-2.0).sp,
+                fontSize = 48.sp,
+                lineHeight = 52.sp,
+                letterSpacing = (-1.0).sp,
                 color = T.Fg,
                 maxLines = 2,
             )
-            androidx.compose.foundation.layout.Spacer(Modifier.height(18.dp))
+            androidx.compose.foundation.layout.Spacer(Modifier.height(14.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 movie.rating?.let {
                     Text(
@@ -159,23 +160,26 @@ fun MovieDetailScreen(
                 movie.year?.let { Text("$it", color = T.Fg2, fontSize = 13.sp) }
                 movie.container?.let { Text(it.uppercase(), color = T.Fg2, fontSize = 13.sp) }
             }
-            androidx.compose.foundation.layout.Spacer(Modifier.height(20.dp))
+            androidx.compose.foundation.layout.Spacer(Modifier.height(16.dp))
             movie.plot?.let {
-                Text(it, color = T.Fg2, fontSize = 17.sp, lineHeight = 26.sp, maxLines = 6)
+                Text(it, color = T.Fg2, fontSize = 15.sp, lineHeight = 22.sp, maxLines = 5)
             }
-            androidx.compose.foundation.layout.Spacer(Modifier.height(30.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.foundation.layout.Spacer(Modifier.height(26.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = { vm.play(movie, onPlay) },
                     colors = androidx.tv.material3.ButtonDefaults.colors(
                         containerColor = T.CtaBg,
                         contentColor = T.CtaFgOnCta,
                     ),
-                    modifier = Modifier.border(3.dp, T.Accent, RoundedCornerShape(14.dp)),
-                ) { Text("▶  " + S.play, fontSize = 15.sp, fontWeight = FontWeight.SemiBold) }
+                    shape = androidx.tv.material3.ButtonDefaults.shape(RoundedCornerShape(8.dp)),
+                    modifier = Modifier.height(44.dp).padding(end = 4.dp),
+                ) { Text("▶  " + S.play, fontSize = 14.sp, fontWeight = FontWeight.SemiBold) }
                 Button(
                     onClick = { vm.record(movie, S.toastRecordingQueued) },
                     colors = androidx.tv.material3.ButtonDefaults.colors(containerColor = T.Surface2),
+                    shape = androidx.tv.material3.ButtonDefaults.shape(RoundedCornerShape(8.dp)),
+                    modifier = Modifier.height(44.dp),
                 ) { Text("⏺  " + S.playerRecord, fontSize = 14.sp, color = T.Fg2) }
                 com.ultratv.tv.nativeapp.ui.common.FavoriteButton(kind = "MOVIE", remoteId = movie.remoteId)
             }

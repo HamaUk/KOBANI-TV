@@ -40,73 +40,50 @@ fun MoviesScreen(onOpen: (Long) -> Unit, vm: MoviesViewModel = hiltViewModel()) 
     val flatMovies by vm.movies.collectAsState()
     val refreshing by vm.refreshing.collectAsState()
 
-    // When no category is filtered, show the Netflix-style rails view.
-    // When a single category is picked from chips, fall back to a flat grid
-    // (faster scanning when the user already narrowed scope).
-    val railsMode = sel == null
     val S = com.ultratv.tv.nativeapp.i18n.LocalStrings.current
+    val paged = vm.pagedMovies.collectAsLazyPagingItems()
 
     PullToRefreshBox(
         isRefreshing = refreshing,
         onRefresh = { vm.refresh() },
         modifier = Modifier.fillMaxSize(),
     ) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-    ) {
-        Spacer(Modifier.height(24.dp))
-        Text(
-            S.moviesTitle,
-            fontFamily = com.ultratv.tv.nativeapp.ui.theme.UltraFonts.Serif,
-            fontSize = 36.sp,
-            letterSpacing = (-1).sp,
-            color = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.Fg,
-            modifier = Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter),
-        )
-        Spacer(Modifier.height(20.dp))
-        Column(Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter, bottom = 12.dp)) {
-            CategoryChips(categories = cats, selected = sel, onSelect = vm::selectCategory)
-        }
-
-        if (railsMode) {
-            if (rails.isEmpty()) {
-                Text(
-                    S.noMovies,
-                    color = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.Fg3,
-                    modifier = Modifier.padding(start = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter),
-                )
-            }
-            rails.forEachIndexed { idx, rail ->
-                ContentRail(
-                    title = rail.category?.name ?: S.railOther,
-                    eyebrow = if (idx == 0) "Cinéma" else null,
-                    items = rail.items,
-                    itemKey = { it.id },
-                ) { m -> PosterCard(title = m.name, poster = m.poster, subtitle = m.year?.toString()) { onOpen(m.id) } }
-            }
-            Spacer(Modifier.height(40.dp))
-        } else {
-            // Flat-grid mode (single category) — uses PagingData so a 50k-item
-            // catalog only ever has ~120 items in memory at once.
-            val paged = vm.pagedMovies.collectAsLazyPagingItems()
-            Text("${paged.itemCount} titles loaded${if (paged.loadState.append is androidx.paging.LoadState.Loading) "…" else ""}",
-                fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                contentPadding = PaddingValues(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.height(720.dp),
-            ) {
-                items(
-                    count = paged.itemCount,
-                    key = { idx -> paged.peek(idx)?.id ?: idx },
-                ) { idx ->
-                    val m = paged[idx] ?: return@items
-                    PosterCard(title = m.name, poster = m.poster, subtitle = m.year?.toString()) { onOpen(m.id) }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            contentPadding = PaddingValues(bottom = 60.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.EdgeGutter),
+        ) {
+            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                Column {
+                    Spacer(Modifier.height(24.dp))
+                    Text(
+                        S.moviesTitle,
+                        fontFamily = com.ultratv.tv.nativeapp.ui.theme.UltraFonts.Serif,
+                        fontSize = 36.sp,
+                        letterSpacing = (-1).sp,
+                        color = com.ultratv.tv.nativeapp.ui.theme.UltraTokens.Fg,
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Box(Modifier.padding(bottom = 20.dp)) {
+                        CategoryChips(categories = cats, selected = sel, onSelect = vm::selectCategory)
+                    }
+                    Text(
+                        "${paged.itemCount} titles loaded${if (paged.loadState.append is androidx.paging.LoadState.Loading) "…" else ""}",
+                        fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
                 }
             }
+
+            items(
+                count = paged.itemCount,
+                key = { idx -> paged.peek(idx)?.id ?: idx },
+            ) { idx ->
+                val m = paged[idx] ?: return@items
+                PosterCard(title = m.name, poster = m.poster, subtitle = m.year?.toString()) { onOpen(m.id) }
+            }
         }
-    }
     }
 }
