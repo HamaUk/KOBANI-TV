@@ -318,16 +318,20 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 else
                     androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
             )
-            // Enable tunneled playback — this is CRITICAL for many Android TV
-            // boxes (AMLogic S905/S912/S928, Realtek RTD1619, Samsung Tizen).
-            // Without it, the hardware decoder can produce audio but no video
-            // frames because the codec output surface never connects properly.
+            // Allow fallback to secondary decoders if the primary one fails to initialize.
             setEnableDecoderFallback(true)
         }
         ExoPlayer.Builder(context, renderers)
             .setLoadControl(loadControl)
             .setMediaSourceFactory(mediaSourceFactory)
             .build().apply {
+            // Enable tunneled playback — this is CRITICAL for many Android TV
+            // boxes (AMLogic S905/S912/S928, Realtek RTD1619).
+            // Without it, the hardware decoder can produce audio but no video
+            // frames because the codec output surface never connects properly.
+            trackSelectionParameters = trackSelectionParameters.buildUpon()
+                .setTunnelingEnabled(true)
+                .build()
             playWhenReady = true
             // Surface playback failures to the dashboard so we can see WHY a
             // stream silently never starts (codec, 403, DNS, etc).

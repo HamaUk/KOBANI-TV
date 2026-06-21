@@ -113,6 +113,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
                 else
                     androidx.media3.exoplayer.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
             )
+            // Allow fallback to secondary decoders if the primary one fails to initialize.
             setEnableDecoderFallback(true)
         }
         
@@ -120,6 +121,9 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
             .setLoadControl(loadControl)
             .setMediaSourceFactory(mediaSourceFactory)
             .build().apply {
+            trackSelectionParameters = trackSelectionParameters.buildUpon()
+                .setTunnelingEnabled(true)
+                .build()
             playWhenReady = true
             addListener(object : androidx.media3.common.Player.Listener {
                 override fun onPlayerError(error: androidx.media3.common.PlaybackException) {

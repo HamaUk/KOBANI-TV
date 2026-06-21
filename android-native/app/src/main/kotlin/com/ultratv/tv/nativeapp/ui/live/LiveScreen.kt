@@ -373,6 +373,9 @@ private fun LivePreviewPane(
     // navigation doesn't hammer the network with stalker create_link calls.
     val miniPlayer = remember {
         androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+            trackSelectionParameters = trackSelectionParameters.buildUpon()
+                .setTunnelingEnabled(true)
+                .build()
             playWhenReady = true
             volume = 0f // Silent — audio belongs to the full player.
         }
