@@ -19,12 +19,13 @@ fun VlcVideoPlayer(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val appContext = context.applicationContext
 
     val libVLC = remember {
         val args = ArrayList<String>()
         args.add("-vvv")
         args.add("--network-caching=3000") // 3 seconds
-        LibVLC(context, args)
+        LibVLC(appContext, args)
     }
 
     val mediaPlayer = remember { MediaPlayer(libVLC) }
@@ -38,7 +39,6 @@ fun VlcVideoPlayer(
         }
         onDispose {
             mediaPlayer.stop()
-            mediaPlayer.detachViews()
         }
     }
 
@@ -52,7 +52,14 @@ fun VlcVideoPlayer(
     AndroidView(
         factory = { ctx ->
             VLCVideoLayout(ctx).apply {
-                mediaPlayer.attachViews(this, null, false, false)
+                addOnAttachStateChangeListener(object : android.view.View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: android.view.View) {
+                        mediaPlayer.attachViews(this@apply, null, false, false)
+                    }
+                    override fun onViewDetachedFromWindow(v: android.view.View) {
+                        mediaPlayer.detachViews()
+                    }
+                })
             }
         },
         modifier = modifier.fillMaxSize()

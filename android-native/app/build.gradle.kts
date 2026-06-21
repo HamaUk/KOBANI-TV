@@ -56,6 +56,12 @@ android {
         versionName = appVersionName
         vectorDrawables { useSupportLibrary = true }
 
+        // Strip x86/x86_64 to reduce APK size from 190MB -> ~70MB. Real TV boxes are ARM.
+        ndk {
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("arm64-v8a")
+        }
+
         // Telemetry transport config — see resolveBuildConfigValue() above.
         // Consumed by RemoteLog. String values must be wrapped in escaped quotes.
         buildConfigField("String", "LOG_URL", "\"$ultraLogUrl\"")
