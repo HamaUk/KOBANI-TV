@@ -81,9 +81,7 @@ internal fun LiveDrawer(
     onSearch: () -> Unit = {},
     onEpg: () -> Unit = {},
     onFav: () -> Unit = {},
-    onSleep: () -> Unit = {},
     onTracks: () -> Unit = {},
-    onRecord: () -> Unit = {},
     onAspect: () -> Unit = {},
     onSettings: () -> Unit = {},
 ) {
@@ -153,7 +151,7 @@ internal fun LiveDrawer(
                             interactionSource = interaction,
                             shape = CardDefaults.shape(RoundedCornerShape(4.dp)),
                             colors = ultraCardColors(
-                                containerColor = if (e.isCurrent) t.Accent else Color.Transparent,
+                                containerColor = Color.Transparent,
                                 focusedContainerColor = t.Accent,
                                 focusedContentColor = Color.White,
                             ),
@@ -173,7 +171,7 @@ internal fun LiveDrawer(
                                 Column(Modifier.weight(1f)) {
                                     Text(
                                         e.channel.name,
-                                        color = if (highlight) Color.White else Color.White,
+                                        color = if (e.isCurrent && !highlight) t.Accent else Color.White,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
                                         maxLines = 1,
@@ -197,6 +195,7 @@ internal fun LiveDrawer(
                     .fillMaxHeight()
                     .background(Color(0xFF0B0A12)) // Slightly darker for sidebar
                     .padding(vertical = 24.dp)
+                    .androidx.compose.foundation.focusGroup()
                     .verticalScroll(androidx.compose.foundation.rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -204,9 +203,7 @@ internal fun LiveDrawer(
                 DrawerIconButton(Icons.Default.Search, "Search", onClick = onSearch)
                 DrawerIconButton(Icons.Default.ViewList, "EPG", onClick = onEpg)
                 DrawerIconButton(Icons.Default.Favorite, "Add to Fav", onClick = onFav)
-                DrawerIconButton(Icons.Default.Timer, "Time Shift", onClick = onSleep)
                 DrawerIconButton(Icons.Default.Audiotrack, "Tracks", onClick = onTracks)
-                DrawerIconButton(Icons.Default.FiberManualRecord, "Record", onClick = onRecord, tint = Color.Red)
                 DrawerIconButton(Icons.Default.AspectRatio, "Aspect", onClick = onAspect)
                 DrawerIconButton(Icons.Default.Settings, "Settings", onClick = onSettings)
             }

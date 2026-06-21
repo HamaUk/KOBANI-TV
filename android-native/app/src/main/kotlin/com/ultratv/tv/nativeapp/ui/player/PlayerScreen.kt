@@ -234,7 +234,6 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     var tracksOpen by remember { mutableStateOf(false) }
     var drawerOpen by remember { mutableStateOf(false) }
     var displayMenu by remember { mutableStateOf(false) }
-    var sleepMenu by remember { mutableStateOf(false) }
     var aspectMode by remember { mutableStateOf(AspectMode.Fit) }
     var playbackSpeed by remember { mutableStateOf(1.0f) }
     val S = com.ultratv.tv.nativeapp.i18n.LocalStrings.current
@@ -392,18 +391,9 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
         }
     }
 
-    // Sleep-timer: when > 0, stops playback at the given timestamp. The
-    // LaunchedEffect below polls every 5s and pauses + closes the screen
-    // when the deadline is reached.
+    // Sleep-timer: functionality removed as per user request.
     var sleepDeadlineMs by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(sleepDeadlineMs) {
-        if (sleepDeadlineMs <= 0L) return@LaunchedEffect
-        while (System.currentTimeMillis() < sleepDeadlineMs) delay(5_000)
-        player?.pause()
-        com.ultratv.tv.nativeapp.ui.common.Toaster.show(S.sleepReached)
-        onBack()
-    }
-    LaunchedEffect(currentUrl) {
+    LaunchedEffect(currentUrl, playbackItem?.remoteId) {
         if (currentUrl.isNotBlank() && player != null) {
             player.setMediaItem(MediaItem.fromUri(currentUrl))
             player.prepare()
@@ -631,34 +621,11 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                 maxItemsInEachRow = 4,
             ) {
-                // Sleep timer menu — anchored bottom-right next to the external-player button.
-                Button(onClick = { sleepMenu = !sleepMenu }) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Default.Timer, contentDescription = "Sleep", modifier = Modifier.size(16.dp))
-                        Text(
-                            if (sleepDeadlineMs > 0L) {
-                                val mins = ((sleepDeadlineMs - System.currentTimeMillis()) / 60_000L).coerceAtLeast(0L)
-                                "${mins}min"
-                            } else S.sleepLabel
-                        )
-                    }
-                }
-
-                
                 if (player != null) {
                     Button(onClick = { tracksOpen = true }) { 
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
                             Text(S.playerTracks) 
-                        }
-                    }
-                }
-                
-                if (isLive) {
-                    Button(onClick = { vm.recordLive(120, S.recordingQueuedTemplate) }) { 
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(Icons.Default.FiberManualRecord, contentDescription = "Record", tint = Color.Red, modifier = Modifier.size(16.dp))
-                            Text("${S.playerRecord} (2h)") 
                         }
                     }
                 }
@@ -716,23 +683,6 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 }
             }
         }
-        if (sleepMenu) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 24.dp, bottom = 70.dp)
-                    .background(Color(0xCC000000), RoundedCornerShape(10.dp))
-                    .padding(10.dp),
-            ) {
-                SleepOption(S.sleepMin15) { sleepDeadlineMs = System.currentTimeMillis() + 15 * 60_000; sleepMenu = false }
-                SleepOption(S.sleepMin30) { sleepDeadlineMs = System.currentTimeMillis() + 30 * 60_000; sleepMenu = false }
-                SleepOption(S.sleep1h) { sleepDeadlineMs = System.currentTimeMillis() + 60 * 60_000; sleepMenu = false }
-                SleepOption(S.sleep2h) { sleepDeadlineMs = System.currentTimeMillis() + 120 * 60_000; sleepMenu = false }
-                if (sleepDeadlineMs > 0L) {
-                    SleepOption(S.sleepCancel) { sleepDeadlineMs = 0L; sleepMenu = false }
-                }
-            }
-        }
         if (displayMenu) {
             Column(
                 modifier = Modifier
@@ -778,9 +728,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 onSearch = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Search") /* TODO: navigate search */ },
                 onEpg = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("EPG") /* TODO: navigate EPG */ },
                 onFav = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Added to Favorites") },
-                onSleep = { sleepMenu = true; drawerOpen = false },
                 onTracks = { if (player != null) { tracksOpen = true }; drawerOpen = false },
-                onRecord = { vm.recordLive(120, S.recordingQueuedTemplate); drawerOpen = false },
                 onAspect = { if (player != null) { displayMenu = true }; drawerOpen = false },
                 onSettings = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Settings") /* TODO: navigate settings */ }
             )
