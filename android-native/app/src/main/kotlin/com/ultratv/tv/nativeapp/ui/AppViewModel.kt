@@ -7,6 +7,7 @@ import com.ultratv.tv.nativeapp.data.sync.SyncScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.ultratv.tv.nativeapp.data.prefs.AppTheme
 import com.ultratv.tv.nativeapp.data.prefs.DefaultPlayer
+import com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine
 import com.ultratv.tv.nativeapp.data.prefs.SidebarPosition
 import com.ultratv.tv.nativeapp.data.prefs.UserPrefs
 import com.ultratv.tv.nativeapp.data.prefs.UserPreferencesStore
@@ -30,6 +31,7 @@ class AppViewModel @Inject constructor(
     fun setSidebar(pos: SidebarPosition) = viewModelScope.launch { store.setSidebar(pos) }
     fun setTheme(t: AppTheme) = viewModelScope.launch { store.setTheme(t) }
     fun setDefaultPlayer(p: DefaultPlayer) = viewModelScope.launch { store.setDefaultPlayer(p) }
+    fun setVideoPlayerEngine(e: VideoPlayerEngine) = viewModelScope.launch { store.setVideoPlayerEngine(e) }
     fun setAutoSync(v: Boolean) = viewModelScope.launch { store.setAutoSync(v) }
     fun setShowChannelNumbers(v: Boolean) = viewModelScope.launch { store.setShowChannelNumbers(v) }
     fun setHideAdult(v: Boolean) = viewModelScope.launch { store.setHideAdult(v) }

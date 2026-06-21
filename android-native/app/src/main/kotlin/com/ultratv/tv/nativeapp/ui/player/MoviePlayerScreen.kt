@@ -65,7 +65,7 @@ import androidx.tv.material3.Text
 
 @androidx.media3.common.util.UnstableApi
 @Composable
-fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MoviePlayerViewModel = hiltViewModel()) {
+fun DefaultMoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MoviePlayerViewModel, playbackPrefs: com.ultratv.tv.nativeapp.data.prefs.UserPrefs) {
     val context = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     BackHandler { onBack() }
@@ -78,15 +78,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
     var playbackSpeed by remember { mutableStateOf(1.0f) }
     val S = LocalStrings.current
 
-    val loadedPrefs by androidx.compose.runtime.produceState<com.ultratv.tv.nativeapp.data.prefs.UserPrefs?>(
-        initialValue = null,
-    ) {
-        value = vm.playbackPrefs()
-    }
-    val playbackPrefs = loadedPrefs ?: run {
-        Box(Modifier.fillMaxSize().background(Color.Black))
-        return
-    }
+
 
     val player = remember {
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(15_000)
@@ -471,5 +463,51 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
                 StatRow("Channels", stats.audioChannels)
             }
         }
+    }
+}
+
+@androidx.media3.common.util.UnstableApi
+@Composable
+fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MoviePlayerViewModel = hiltViewModel()) {
+    val loadedPrefs by androidx.compose.runtime.produceState<com.ultratv.tv.nativeapp.data.prefs.UserPrefs?>(
+        initialValue = null,
+    ) {
+        value = vm.playbackPrefs()
+    }
+    val playbackPrefs = loadedPrefs ?: run {
+        Box(Modifier.fillMaxSize().background(Color.Black))
+        return
+    }
+
+    if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.ADVANCED) {
+        AdvancedMoviePlayerScreen(url, title, onBack, vm, playbackPrefs)
+    } else {
+        DefaultMoviePlayerScreen(url, title, onBack, vm, playbackPrefs)
+    }
+}
+
+@androidx.media3.common.util.UnstableApi
+@Composable
+fun AdvancedMoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MoviePlayerViewModel, playbackPrefs: com.ultratv.tv.nativeapp.data.prefs.UserPrefs) {
+    var resumePos by androidx.compose.runtime.remember { androidx.compose.runtime.mutableLongStateOf(0L) }
+    var resumeReady by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    
+    androidx.compose.runtime.LaunchedEffect(url) {
+        resumePos = vm.prepareResume()
+        resumeReady = true
+    }
+    
+    if (resumeReady) {
+        AdvancedVideoPlayer(
+            url = url,
+            title = title,
+            isLive = false,
+            playbackPrefs = playbackPrefs,
+            resumePositionMs = resumePos,
+            onBack = onBack,
+            onProgressUpdate = { pos, dur ->
+                vm.recordProgress(pos, dur)
+            }
+        )
     }
 }

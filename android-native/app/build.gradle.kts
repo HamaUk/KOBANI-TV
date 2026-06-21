@@ -196,6 +196,8 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.cast)
     implementation(libs.media3.datasource.rtmp)
+    implementation(libs.media3.datasource.okhttp)
+    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.5.0+2")
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation(libs.mediarouter)
     implementation(libs.play.cast.framework)

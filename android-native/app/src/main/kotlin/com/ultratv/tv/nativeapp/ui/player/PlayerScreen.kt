@@ -223,7 +223,7 @@ class PlayerViewModel @Inject constructor(
 
 @androidx.media3.common.util.UnstableApi
 @Composable
-fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewModel = hiltViewModel()) {
+fun DefaultPlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewModel, playbackPrefs: com.ultratv.tv.nativeapp.data.prefs.UserPrefs) {
     val context = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     BackHandler { onBack() }
@@ -244,15 +244,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     // black placeholder until then so the player is built exactly once with the
     // resolved prefs (keeping it stable for the screen's lifetime — changing
     // buffer / frame-rate / decoder still only takes effect on next launch).
-    val loadedPrefs by androidx.compose.runtime.produceState<com.ultratv.tv.nativeapp.data.prefs.UserPrefs?>(
-        initialValue = null,
-    ) {
-        value = vm.playbackPrefs()
-    }
-    val playbackPrefs = loadedPrefs ?: run {
-        Box(Modifier.fillMaxSize().background(Color.Black))
-        return
-    }
+
 
     val player = remember {
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(5_000)
@@ -777,3 +769,43 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     }
 }
 
+
+@androidx.media3.common.util.UnstableApi
+@Composable
+fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewModel = hiltViewModel()) {
+    val loadedPrefs by androidx.compose.runtime.produceState<com.ultratv.tv.nativeapp.data.prefs.UserPrefs?>(
+        initialValue = null,
+    ) {
+        value = vm.playbackPrefs()
+    }
+    val playbackPrefs = loadedPrefs ?: run {
+        Box(Modifier.fillMaxSize().background(Color.Black))
+        return
+    }
+
+    if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.ADVANCED) {
+        AdvancedPlayerScreen(url, title, onBack, vm, playbackPrefs)
+    } else {
+        DefaultPlayerScreen(url, title, onBack, vm, playbackPrefs)
+    }
+}
+
+@androidx.media3.common.util.UnstableApi
+@Composable
+fun AdvancedPlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewModel, playbackPrefs: com.ultratv.tv.nativeapp.data.prefs.UserPrefs) {
+    AdvancedVideoPlayer(
+        url = url,
+        title = title,
+        isLive = true,
+        playbackPrefs = playbackPrefs,
+        onBack = onBack,
+        onZap = { forward ->
+            val newUrl = vm.zap(forward)
+            if (newUrl != null) {
+                Pair(newUrl, vm.current.value?.title ?: "")
+            } else {
+                null
+            }
+        }
+    )
+}

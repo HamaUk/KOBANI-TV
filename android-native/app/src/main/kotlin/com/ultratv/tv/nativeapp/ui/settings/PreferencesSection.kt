@@ -24,8 +24,8 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Switch
 import androidx.tv.material3.Text
-import com.ultratv.tv.nativeapp.data.prefs.AppTheme
 import com.ultratv.tv.nativeapp.data.prefs.DefaultPlayer
+import com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine
 
 import com.ultratv.tv.nativeapp.data.prefs.SidebarPosition
 import com.ultratv.tv.nativeapp.ui.AppViewModel
@@ -51,11 +51,11 @@ fun PreferencesSection(vm: AppViewModel = hiltViewModel()) {
             ChoiceChip(S.prefThemeBlue, on = p.theme == AppTheme.BLUE) { vm.setTheme(AppTheme.BLUE) }
         }
 
-        // External player option removed: everything plays through the
-        // bundled Media3 / ExoPlayer to keep the experience seamless. The
-        // pref is left in UserPreferences for backwards compat but no
-        // longer exposed in the UI.
-        
+        // Video Player Engine
+        PrefRow(label = "Video Player Engine") {
+            ChoiceChip("Default", on = p.videoPlayerEngine == VideoPlayerEngine.DEFAULT) { vm.setVideoPlayerEngine(VideoPlayerEngine.DEFAULT) }
+            ChoiceChip("Advanced", on = p.videoPlayerEngine == VideoPlayerEngine.ADVANCED) { vm.setVideoPlayerEngine(VideoPlayerEngine.ADVANCED) }
+        }
 
 
         SwitchRow(

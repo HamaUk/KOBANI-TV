@@ -18,11 +18,13 @@ private val Context.userPrefsDs by preferencesDataStore(name = "user_prefs")
 enum class SidebarPosition { LEFT, TOP }
 enum class AppTheme { DARK, AMOLED, BLUE, LIGHT }
 enum class DefaultPlayer { INTERNAL, EXTERNAL }
+enum class VideoPlayerEngine { DEFAULT, ADVANCED }
 
 data class UserPrefs(
     val sidebarPosition: SidebarPosition = SidebarPosition.LEFT,
     val theme: AppTheme = AppTheme.DARK,
     val defaultPlayer: DefaultPlayer = DefaultPlayer.INTERNAL,
+    val videoPlayerEngine: VideoPlayerEngine = VideoPlayerEngine.DEFAULT,
     val autoSyncOnLaunch: Boolean = false,
     val showChannelNumbers: Boolean = true,
     val hideAdultCategories: Boolean = false,
@@ -82,6 +84,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
         val sidebar = stringPreferencesKey("sidebar_position")
         val theme = stringPreferencesKey("theme")
         val player = stringPreferencesKey("default_player")
+        val engine = stringPreferencesKey("video_player_engine")
         val autoSync = booleanPreferencesKey("auto_sync_on_launch")
         val channelNums = booleanPreferencesKey("show_channel_numbers")
         val hideAdult = booleanPreferencesKey("hide_adult")
@@ -109,6 +112,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
             sidebarPosition = enumValueOf<SidebarPosition>(p[Keys.sidebar] ?: SidebarPosition.LEFT.name),
             theme = enumValueOf<AppTheme>(p[Keys.theme] ?: AppTheme.DARK.name),
             defaultPlayer = enumValueOf<DefaultPlayer>(p[Keys.player] ?: DefaultPlayer.INTERNAL.name),
+            videoPlayerEngine = enumValueOf<VideoPlayerEngine>(p[Keys.engine] ?: VideoPlayerEngine.DEFAULT.name),
             autoSyncOnLaunch = p[Keys.autoSync] ?: false,
             showChannelNumbers = p[Keys.channelNums] ?: true,
             hideAdultCategories = p[Keys.hideAdult] ?: false,
@@ -135,6 +139,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
     suspend fun setSidebar(pos: SidebarPosition) = update { it[Keys.sidebar] = pos.name }
     suspend fun setTheme(t: AppTheme) = update { it[Keys.theme] = t.name }
     suspend fun setDefaultPlayer(p: DefaultPlayer) = update { it[Keys.player] = p.name }
+    suspend fun setVideoPlayerEngine(e: VideoPlayerEngine) = update { it[Keys.engine] = e.name }
     suspend fun setAutoSync(v: Boolean) = update { it[Keys.autoSync] = v }
     suspend fun setShowChannelNumbers(v: Boolean) = update { it[Keys.channelNums] = v }
     suspend fun setHideAdult(v: Boolean) = update { it[Keys.hideAdult] = v }
