@@ -256,7 +256,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     }
 
     val player = remember(playbackPrefs.videoPlayerEngine) {
-        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) return@remember null
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.SYSTEM) return@remember null
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(5_000)
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -508,8 +508,8 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 return@onKeyEvent false
             },
     ) {
-        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) {
-            VlcVideoPlayer(url = currentUrl)
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.SYSTEM) {
+            SystemVideoPlayer(url = currentUrl)
         } else if (player != null) {
             AndroidView(
                 factory = { ctx ->

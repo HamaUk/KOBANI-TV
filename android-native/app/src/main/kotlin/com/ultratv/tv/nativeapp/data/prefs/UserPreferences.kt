@@ -18,7 +18,7 @@ private val Context.userPrefsDs by preferencesDataStore(name = "user_prefs")
 enum class SidebarPosition { LEFT, TOP }
 enum class AppTheme { DARK, AMOLED, BLUE, LIGHT }
 enum class DefaultPlayer { INTERNAL, EXTERNAL }
-enum class VideoPlayerEngine { EXO, VLC }
+enum class VideoPlayerEngine { EXO, SYSTEM }
 
 data class UserPrefs(
     val sidebarPosition: SidebarPosition = SidebarPosition.LEFT,
@@ -112,7 +112,7 @@ class UserPreferencesStore @Inject constructor(@ApplicationContext private val c
             sidebarPosition = enumValueOf<SidebarPosition>(p[Keys.sidebar] ?: SidebarPosition.LEFT.name),
             theme = enumValueOf<AppTheme>(p[Keys.theme] ?: AppTheme.DARK.name),
             defaultPlayer = enumValueOf<DefaultPlayer>(p[Keys.player] ?: DefaultPlayer.INTERNAL.name),
-            videoPlayerEngine = enumValueOf<VideoPlayerEngine>(p[Keys.videoPlayerEngine] ?: VideoPlayerEngine.EXO.name),
+            videoPlayerEngine = runCatching { enumValueOf<VideoPlayerEngine>(p[Keys.videoPlayerEngine] ?: "") }.getOrDefault(VideoPlayerEngine.EXO),
             autoSyncOnLaunch = p[Keys.autoSync] ?: false,
             showChannelNumbers = p[Keys.channelNums] ?: true,
             hideAdultCategories = p[Keys.hideAdult] ?: false,

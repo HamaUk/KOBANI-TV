@@ -58,7 +58,7 @@ fun PreferencesSection(vm: AppViewModel = hiltViewModel()) {
         
         PrefRow(label = "Video Player Engine") {
             ChoiceChip("ExoPlayer (Default)", on = p.videoPlayerEngine == VideoPlayerEngine.EXO) { vm.setVideoPlayerEngine(VideoPlayerEngine.EXO) }
-            ChoiceChip("VLC Player", on = p.videoPlayerEngine == VideoPlayerEngine.VLC) { vm.setVideoPlayerEngine(VideoPlayerEngine.VLC) }
+            ChoiceChip("System Player (Native)", on = p.videoPlayerEngine == VideoPlayerEngine.SYSTEM) { vm.setVideoPlayerEngine(VideoPlayerEngine.SYSTEM) }
         }
 
         SwitchRow(
