@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,12 +47,21 @@ fun ChannelLogo(
 ) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     // Override from local folder if the user picked one and a file matches.
+    // Also filter out blank / whitespace-only URLs that some providers send
+    // as stream_icon — those aren't valid images and should fall back to
+    // the generated two-letter shortcode.
     val effectiveUrl = androidx.compose.runtime.remember(name, epgChannelId, com.ultratv.tv.nativeapp.data.repo.LocalLogos.treeUri) {
-        com.ultratv.tv.nativeapp.data.repo.LocalLogos.resolveByName(ctx, epgChannelId, name)?.toString() ?: logoUrl
+        com.ultratv.tv.nativeapp.data.repo.LocalLogos.resolveByName(ctx, epgChannelId, name)?.toString()
+            ?: logoUrl?.trim()?.takeIf { it.isNotEmpty() }
     }
     val shortCode = (short ?: deriveShort(name)).take(2).uppercase()
     val hueDeg = ((hueSeed % 360) + 360) % 360
     val (lightColor, darkColor) = hueToOkLchPair(hueDeg)
+
+    // Track whether the remote logo failed to load so we can fall back to
+    // the generated shortcode instead of showing a blank square.
+    var logoFailed by androidx.compose.runtime.remember(effectiveUrl) { mutableStateOf(false) }
+
     Box(
         Modifier
             .size(size)
@@ -68,8 +80,18 @@ fun ChannelLogo(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        if (effectiveUrl != null) {
-            AsyncImage(model = effectiveUrl, contentDescription = name, modifier = Modifier.fillMaxSize())
+        if (effectiveUrl != null && !logoFailed) {
+            AsyncImage(
+                model = coil.request.ImageRequest.Builder(ctx)
+                    .data(effectiveUrl)
+                    .crossfade(true)
+                    .listener(
+                        onError = { _, _ -> logoFailed = true },
+                    )
+                    .build(),
+                contentDescription = name,
+                modifier = Modifier.fillMaxSize(),
+            )
         } else {
             Text(
                 shortCode,
