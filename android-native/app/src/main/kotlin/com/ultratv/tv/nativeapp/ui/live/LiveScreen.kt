@@ -372,10 +372,12 @@ private fun LivePreviewPane(
     // MediaItem with a debounce when the focused channel changes, so D-pad
     // navigation doesn't hammer the network with stalker create_link calls.
     val miniPlayer = remember {
-        androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-            trackSelectionParameters = trackSelectionParameters.buildUpon()
-                .setTunnelingEnabled(true)
-                .build()
+        val trackSelector = androidx.media3.exoplayer.trackselection.DefaultTrackSelector(context).apply {
+            parameters = buildUponParameters().setTunnelingEnabled(true).build()
+        }
+        androidx.media3.exoplayer.ExoPlayer.Builder(context)
+            .setTrackSelector(trackSelector)
+            .build().apply {
             playWhenReady = true
             volume = 0f // Silent — audio belongs to the full player.
         }
