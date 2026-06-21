@@ -359,8 +359,8 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
         ) { entry ->
             val rawUrl = entry.arguments?.getString("url").orEmpty()
             val rawTitle = entry.arguments?.getString("title").orEmpty()
-            val url = java.net.URLDecoder.decode(rawUrl, "UTF-8")
-            val title = java.net.URLDecoder.decode(rawTitle, "UTF-8")
+            val url = runCatching { String(android.util.Base64.decode(rawUrl, android.util.Base64.URL_SAFE)) }.getOrDefault("")
+            val title = runCatching { String(android.util.Base64.decode(rawTitle, android.util.Base64.URL_SAFE)) }.getOrDefault("")
             PlayerScreen(url = url, title = title, onBack = { nav.popBackStack() })
         }
         composable(
@@ -372,8 +372,8 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
         ) { entry ->
             val rawUrl = entry.arguments?.getString("url").orEmpty()
             val rawTitle = entry.arguments?.getString("title").orEmpty()
-            val url = java.net.URLDecoder.decode(rawUrl, "UTF-8")
-            val title = java.net.URLDecoder.decode(rawTitle, "UTF-8")
+            val url = runCatching { String(android.util.Base64.decode(rawUrl, android.util.Base64.URL_SAFE)) }.getOrDefault("")
+            val title = runCatching { String(android.util.Base64.decode(rawTitle, android.util.Base64.URL_SAFE)) }.getOrDefault("")
             MoviePlayerScreen(url = url, title = title, onBack = { nav.popBackStack() })
         }
     }
