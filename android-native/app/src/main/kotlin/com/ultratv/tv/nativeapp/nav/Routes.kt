@@ -13,6 +13,7 @@ object Routes {
     const val SETTINGS = "settings"
     // Player accepts a stream URL (URL-encoded) + title.
     const val PLAYER = "player?url={url}&title={title}"
+    const val MOVIE_PLAYER = "movie_player?url={url}&title={title}"
 
     fun movieDetail(id: Long) = "movies/$id"
     fun seriesDetail(id: Long) = "series/$id"
@@ -20,5 +21,10 @@ object Routes {
         val u = java.net.URLEncoder.encode(url, "UTF-8")
         val t = java.net.URLEncoder.encode(title, "UTF-8")
         return "player?url=$u&title=$t"
+    }
+    fun moviePlayer(url: String, title: String): String {
+        val u = java.net.URLEncoder.encode(url, "UTF-8")
+        val t = java.net.URLEncoder.encode(title, "UTF-8")
+        return "movie_player?url=$u&title=$t"
     }
 }

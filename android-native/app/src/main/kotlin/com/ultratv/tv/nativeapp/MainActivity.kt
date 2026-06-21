@@ -48,6 +48,7 @@ import com.ultratv.tv.nativeapp.ui.home.HomeScreen
 import com.ultratv.tv.nativeapp.ui.live.LiveScreen
 import com.ultratv.tv.nativeapp.ui.movies.MovieDetailScreen
 import com.ultratv.tv.nativeapp.ui.movies.MoviesScreen
+import com.ultratv.tv.nativeapp.ui.player.MoviePlayerScreen
 import com.ultratv.tv.nativeapp.ui.player.PlayerScreen
 import com.ultratv.tv.nativeapp.ui.search.SearchScreen
 import com.ultratv.tv.nativeapp.ui.series.SeriesDetailScreen
@@ -222,7 +223,9 @@ private fun UltraTvAppRoot(sidebarPosition: SidebarPosition) {
     }
 
     val currentBackStack by nav.currentBackStackEntryAsState()
-    val isPlayer = currentBackStack?.destination?.route?.startsWith(Routes.PLAYER.substringBefore("/{")) == true
+    val isPlayer = currentBackStack?.destination?.route?.let { r ->
+        r.startsWith(Routes.PLAYER.substringBefore("/{")) || r.startsWith(Routes.MOVIE_PLAYER.substringBefore("/{"))
+    } == true
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -305,7 +308,7 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
             val id = entry.arguments?.getLong("id") ?: -1L
             MovieDetailScreen(
                 movieId = id,
-                onPlay = { url, title -> nav.navigate(Routes.player(url, title)) },
+                onPlay = { url, title -> nav.navigate(Routes.moviePlayer(url, title)) },
             )
         }
         composable(Routes.SERIES) {
@@ -318,7 +321,7 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
             val id = entry.arguments?.getLong("id") ?: -1L
             SeriesDetailScreen(
                 seriesId = id,
-                onPlayEpisode = { url, title -> nav.navigate(Routes.player(url, title)) },
+                onPlayEpisode = { url, title -> nav.navigate(Routes.moviePlayer(url, title)) },
             )
         }
         composable(Routes.SEARCH) {
@@ -359,6 +362,19 @@ private fun NavGraph(nav: androidx.navigation.NavHostController) {
             val url = java.net.URLDecoder.decode(rawUrl, "UTF-8")
             val title = java.net.URLDecoder.decode(rawTitle, "UTF-8")
             PlayerScreen(url = url, title = title, onBack = { nav.popBackStack() })
+        }
+        composable(
+            route = Routes.MOVIE_PLAYER,
+            arguments = listOf(
+                navArgument("url") { type = NavType.StringType; defaultValue = "" },
+                navArgument("title") { type = NavType.StringType; defaultValue = "" },
+            ),
+        ) { entry ->
+            val rawUrl = entry.arguments?.getString("url").orEmpty()
+            val rawTitle = entry.arguments?.getString("title").orEmpty()
+            val url = java.net.URLDecoder.decode(rawUrl, "UTF-8")
+            val title = java.net.URLDecoder.decode(rawTitle, "UTF-8")
+            MoviePlayerScreen(url = url, title = title, onBack = { nav.popBackStack() })
         }
     }
 }
