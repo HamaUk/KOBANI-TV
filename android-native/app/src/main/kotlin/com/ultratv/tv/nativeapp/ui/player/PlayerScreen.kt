@@ -255,11 +255,8 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
         return
     }
 
-    val player = remember {
-        // bufferSeconds = how much we want to *hold* in memory; the "start
-        // playback" threshold should always be very small so live TV starts
-        // immediately (the user's complaint: "rien ne se lit" — the player
-        // was waiting on 5 s of buffer before going READY).
+    val player = remember(playbackPrefs.videoPlayerEngine) {
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) return@remember null
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(5_000)
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -388,7 +385,7 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     var statsOpen by remember { mutableStateOf(false) }
     var stats by remember { mutableStateOf(StreamStats()) }
     LaunchedEffect(statsOpen) {
-        if (!statsOpen) return@LaunchedEffect
+        if (!statsOpen || player == null) return@LaunchedEffect
         while (true) {
             stats = StreamStats.read(player)
             delay(1_000)
@@ -402,12 +399,12 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     LaunchedEffect(sleepDeadlineMs) {
         if (sleepDeadlineMs <= 0L) return@LaunchedEffect
         while (System.currentTimeMillis() < sleepDeadlineMs) delay(5_000)
-        player.pause()
+        player?.pause()
         com.ultratv.tv.nativeapp.ui.common.Toaster.show(S.sleepReached)
         onBack()
     }
     LaunchedEffect(currentUrl) {
-        if (currentUrl.isNotBlank()) {
+        if (currentUrl.isNotBlank() && player != null) {
             player.setMediaItem(MediaItem.fromUri(currentUrl))
             player.prepare()
             // Seek to last persisted position if VOD/episode has one. Awaits the
@@ -421,12 +418,13 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
         }
     }
     LaunchedEffect(playbackSpeed) {
-        player.playbackParameters = androidx.media3.common.PlaybackParameters(playbackSpeed)
+        player?.playbackParameters = androidx.media3.common.PlaybackParameters(playbackSpeed)
     }
 
     // Periodically record playback position so "Continue watching" works even
     // if the user closes the app mid-playback (no onDispose fires for kills).
     LaunchedEffect(player) {
+        if (player == null) return@LaunchedEffect
         while (true) {
             delay(10_000)   // every 10s
             if (player.duration > 0) {
@@ -437,8 +435,10 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
 
     DisposableEffect(Unit) {
         onDispose {
-            vm.recordProgress(player.currentPosition, player.duration.coerceAtLeast(0))
-            player.release()
+            player?.let { p ->
+                vm.recordProgress(p.currentPosition, p.duration.coerceAtLeast(0))
+                p.release()
+            }
         }
     }
 
@@ -508,31 +508,35 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 return@onKeyEvent false
             },
     ) {
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    this.player = player
-                    useController = true
-                    setShowFastForwardButton(!isLive)
-                    setShowRewindButton(!isLive)
-                    setShowNextButton(false)
-                    setShowPreviousButton(false)
-                    controllerShowTimeoutMs = if (isLive) 1500 else 3000
-                    // Explicitly use SurfaceView (not TextureView). SurfaceView
-                    // is the only reliable surface type on TV boxes — many
-                    // AMLogic / Realtek / Samsung chipsets cannot render video
-                    // via TextureView or the default auto-detect path. Without
-                    // this, users get audio but a black screen.
-                    setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                }
-            },
-            update = { v -> v.resizeMode = aspectMode.resizeMode },
-            modifier = Modifier.fillMaxSize(),
-        )
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) {
+            VlcVideoPlayer(url = currentUrl)
+        } else if (player != null) {
+            AndroidView(
+                factory = { ctx ->
+                    PlayerView(ctx).apply {
+                        this.player = player
+                        useController = true
+                        setShowFastForwardButton(!isLive)
+                        setShowRewindButton(!isLive)
+                        setShowNextButton(false)
+                        setShowPreviousButton(false)
+                        controllerShowTimeoutMs = if (isLive) 1500 else 3000
+                        // Explicitly use SurfaceView (not TextureView). SurfaceView
+                        // is the only reliable surface type on TV boxes — many
+                        // AMLogic / Realtek / Samsung chipsets cannot render video
+                        // via TextureView or the default auto-detect path. Without
+                        // this, users get audio but a black screen.
+                        setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                    }
+                },
+                update = { v -> v.resizeMode = aspectMode.resizeMode },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         // Vertical-drag gestures for touch users: right strip = volume,
         // left strip = brightness. The strips are narrow (120 dp) so the
@@ -641,10 +645,12 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 }
 
                 
-                Button(onClick = { tracksOpen = true }) { 
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
-                        Text(S.playerTracks) 
+                if (player != null) {
+                    Button(onClick = { tracksOpen = true }) { 
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
+                            Text(S.playerTracks) 
+                        }
                     }
                 }
                 
@@ -656,10 +662,12 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                         }
                     }
                 }
-                Button(onClick = { displayMenu = !displayMenu }) { 
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", modifier = Modifier.size(16.dp))
-                        Text(S.playerDisplay) 
+                if (player != null) {
+                    Button(onClick = { displayMenu = !displayMenu }) { 
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", modifier = Modifier.size(16.dp))
+                            Text(S.playerDisplay) 
+                        }
                     }
                 }
                 // Cast picker — only shown if the Cast SDK initialised successfully
@@ -683,10 +691,12 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                         modifier = Modifier.padding(start = 4.dp),
                     )
                 }
-                Button(onClick = { statsOpen = !statsOpen }) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Default.Info, contentDescription = "Stats", modifier = Modifier.size(16.dp))
-                        Text(S.playerStats)
+                if (player != null) {
+                    Button(onClick = { statsOpen = !statsOpen }) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Default.Info, contentDescription = "Stats", modifier = Modifier.size(16.dp))
+                            Text(S.playerStats)
+                        }
                     }
                 }
                 Button(onClick = {
@@ -769,13 +779,13 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
                 onEpg = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("EPG") /* TODO: navigate EPG */ },
                 onFav = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Added to Favorites") },
                 onSleep = { sleepMenu = true; drawerOpen = false },
-                onTracks = { tracksOpen = true; drawerOpen = false },
+                onTracks = { if (player != null) { tracksOpen = true }; drawerOpen = false },
                 onRecord = { vm.recordLive(120, S.recordingQueuedTemplate); drawerOpen = false },
-                onAspect = { displayMenu = true; drawerOpen = false },
+                onAspect = { if (player != null) { displayMenu = true }; drawerOpen = false },
                 onSettings = { com.ultratv.tv.nativeapp.ui.common.Toaster.ok("Settings") /* TODO: navigate settings */ }
             )
         }
-        if (tracksOpen) {
+        if (tracksOpen && player != null) {
             TracksDialog(player = player, onDismiss = { tracksOpen = false })
         }
         if (statsOpen) {

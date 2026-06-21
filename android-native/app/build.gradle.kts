@@ -193,6 +193,7 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation(libs.mediarouter)
     implementation(libs.play.cast.framework)
+    implementation(libs.videolan.libvlc)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

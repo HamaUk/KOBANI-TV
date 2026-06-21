@@ -26,6 +26,7 @@ import androidx.tv.material3.Switch
 import androidx.tv.material3.Text
 import com.ultratv.tv.nativeapp.data.prefs.AppTheme
 import com.ultratv.tv.nativeapp.data.prefs.DefaultPlayer
+import com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine
 import com.ultratv.tv.nativeapp.data.prefs.SidebarPosition
 import com.ultratv.tv.nativeapp.ui.AppViewModel
 
@@ -54,6 +55,11 @@ fun PreferencesSection(vm: AppViewModel = hiltViewModel()) {
         // bundled Media3 / ExoPlayer to keep the experience seamless. The
         // pref is left in UserPreferences for backwards compat but no
         // longer exposed in the UI.
+        
+        PrefRow(label = "Video Player Engine") {
+            ChoiceChip("ExoPlayer (Default)", on = p.videoPlayerEngine == VideoPlayerEngine.EXO) { vm.setVideoPlayerEngine(VideoPlayerEngine.EXO) }
+            ChoiceChip("VLC Player", on = p.videoPlayerEngine == VideoPlayerEngine.VLC) { vm.setVideoPlayerEngine(VideoPlayerEngine.VLC) }
+        }
 
         SwitchRow(
             title = S.settingsTelemetryTitle,

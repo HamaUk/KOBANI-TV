@@ -88,7 +88,9 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
         return
     }
 
-    val player = remember {
+    val player = remember(playbackPrefs.videoPlayerEngine) {
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) return@remember null
+        
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(15_000)
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -161,7 +163,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
     var statsOpen by remember { mutableStateOf(false) }
     var stats by remember { mutableStateOf(StreamStats()) }
     LaunchedEffect(statsOpen) {
-        if (!statsOpen) return@LaunchedEffect
+        if (!statsOpen || player == null) return@LaunchedEffect
         while (true) {
             stats = StreamStats.read(player)
             delay(1_000)
@@ -172,13 +174,13 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
     LaunchedEffect(sleepDeadlineMs) {
         if (sleepDeadlineMs <= 0L) return@LaunchedEffect
         while (System.currentTimeMillis() < sleepDeadlineMs) delay(5_000)
-        player.pause()
+        player?.pause()
         com.ultratv.tv.nativeapp.ui.common.Toaster.show(S.sleepReached)
         onBack()
     }
     
     LaunchedEffect(currentUrl) {
-        if (currentUrl.isNotBlank()) {
+        if (currentUrl.isNotBlank() && player != null) {
             player.setMediaItem(MediaItem.fromUri(currentUrl))
             player.prepare()
             val resume = vm.prepareResume()
@@ -190,10 +192,11 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
     }
     
     LaunchedEffect(playbackSpeed) {
-        player.playbackParameters = androidx.media3.common.PlaybackParameters(playbackSpeed)
+        player?.playbackParameters = androidx.media3.common.PlaybackParameters(playbackSpeed)
     }
 
     LaunchedEffect(player) {
+        if (player == null) return@LaunchedEffect
         while (true) {
             delay(10_000)
             if (player.duration > 0) {
@@ -204,32 +207,38 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
 
     DisposableEffect(Unit) {
         onDispose {
-            vm.recordProgress(player.currentPosition, player.duration.coerceAtLeast(0))
-            player.release()
+            player?.let { p ->
+                vm.recordProgress(p.currentPosition, p.duration.coerceAtLeast(0))
+                p.release()
+            }
         }
     }
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    this.player = player
-                    useController = true
-                    setShowFastForwardButton(true)
-                    setShowRewindButton(true)
-                    setShowNextButton(false)
-                    setShowPreviousButton(false)
-                    controllerShowTimeoutMs = 3000
-                    setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                }
-            },
-            update = { v -> v.resizeMode = aspectMode.resizeMode },
-            modifier = Modifier.fillMaxSize(),
-        )
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.VLC) {
+            VlcVideoPlayer(url = currentUrl)
+        } else if (player != null) {
+            AndroidView(
+                factory = { ctx ->
+                    PlayerView(ctx).apply {
+                        this.player = player
+                        useController = true
+                        setShowFastForwardButton(true)
+                        setShowRewindButton(true)
+                        setShowNextButton(false)
+                        setShowPreviousButton(false)
+                        controllerShowTimeoutMs = 3000
+                        setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                    }
+                },
+                update = { v -> v.resizeMode = aspectMode.resizeMode },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         val audio = remember { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
         val activity = remember(context) { context as? Activity }
@@ -319,17 +328,19 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
                 }
             }
 
-            Button(onClick = { tracksOpen = true }) { 
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
-                    Text(S.playerTracks) 
+            if (player != null) {
+                Button(onClick = { tracksOpen = true }) { 
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.Settings, contentDescription = "Quality/Tracks", modifier = Modifier.size(16.dp))
+                        Text(S.playerTracks) 
+                    }
                 }
-            }
-            
-            Button(onClick = { displayMenu = !displayMenu }) { 
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", modifier = Modifier.size(16.dp))
-                    Text(S.playerDisplay) 
+                
+                Button(onClick = { displayMenu = !displayMenu }) { 
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.AspectRatio, contentDescription = "Aspect Ratio", modifier = Modifier.size(16.dp))
+                        Text(S.playerDisplay) 
+                    }
                 }
             }
             
@@ -350,10 +361,12 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
                 )
             }
             
-            Button(onClick = { statsOpen = !statsOpen }) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Default.Info, contentDescription = "Stats", modifier = Modifier.size(16.dp))
-                    Text(S.playerStats)
+            if (player != null) {
+                Button(onClick = { statsOpen = !statsOpen }) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Default.Info, contentDescription = "Stats", modifier = Modifier.size(16.dp))
+                        Text(S.playerStats)
+                    }
                 }
             }
             
@@ -420,7 +433,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
             }
         }
         
-        if (tracksOpen) {
+        if (tracksOpen && player != null) {
             TracksDialog(player = player, onDismiss = { tracksOpen = false })
         }
         
