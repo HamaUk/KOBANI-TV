@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -125,12 +126,13 @@ internal fun LiveDrawer(
                     .fillMaxHeight()
                     .background(Color(0xFF08080C))
                     .padding(vertical = 40.dp)
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     .focusRequester(iconMenuFocus)
                     .focusProperties {
                         // D-pad RIGHT -> jump to channel list
                         right = channelListFocus
                         // Don't let LEFT escape the drawer
-                        left = iconMenuFocus
+                        left = androidx.compose.ui.focus.FocusRequester.Cancel
                     },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
