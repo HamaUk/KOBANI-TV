@@ -823,8 +823,3 @@ fun PlayerScreen(url: String, title: String, onBack: () -> Unit, vm: PlayerViewM
     }
 }
 
-/** Subtitle + audio track picker for VOD playback. Reads the current Tracks
- *  object from the player and writes back a TrackSelectionOverride when the
- *  user picks a track. */
-@OptIn(androidx.media3.common.util.UnstableApi::class, androidx.tv.material3.ExperimentalTvMaterial3Api::class)
-
