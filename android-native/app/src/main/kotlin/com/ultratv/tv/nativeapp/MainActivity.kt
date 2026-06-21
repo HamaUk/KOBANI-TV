@@ -82,6 +82,19 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val uiModeManager = getSystemService(android.content.Context.UI_MODE_SERVICE) as android.app.UiModeManager
+        val isTv = uiModeManager.currentModeType == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+        val hasTouch = packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_TOUCHSCREEN)
+        
+        // If it's not an official Android TV AND it has a touchscreen, it's a phone/tablet.
+        // We block it and exit. This allows "all models" of TV boxes (even cheap AOSP ones without touch).
+        if (!isTv && hasTouch) {
+            android.widget.Toast.makeText(this, "This app is strictly for TV and TV boxes.", android.widget.Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
         RemoteLog.info("activity", "onCreate restoredState=${savedInstanceState != null}")
         setContent { Root() }
