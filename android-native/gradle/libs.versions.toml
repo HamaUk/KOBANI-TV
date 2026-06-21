@@ -24,7 +24,7 @@ paging-compose = "3.3.5"
 mediarouter = "1.7.0"
 play-cast = "21.5.0"
 libvlc = "3.5.1"
-ijkplayer = "0.8.8"
+
 
 [libraries]
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
@@ -53,11 +53,7 @@ media3-datasource-rtmp = { module = "androidx.media3:media3-datasource-rtmp", ve
 mediarouter = { module = "androidx.mediarouter:mediarouter", version.ref = "mediarouter" }
 play-cast-framework = { module = "com.google.android.gms:play-services-cast-framework", version.ref = "play-cast" }
 
-ijkplayer-java = { module = "tv.danmaku.ijk.media:ijkplayer-java", version.ref = "ijkplayer" }
-ijkplayer-armv7a = { module = "tv.danmaku.ijk.media:ijkplayer-armv7a", version.ref = "ijkplayer" }
-ijkplayer-arm64 = { module = "tv.danmaku.ijk.media:ijkplayer-arm64", version.ref = "ijkplayer" }
-ijkplayer-x86 = { module = "tv.danmaku.ijk.media:ijkplayer-x86", version.ref = "ijkplayer" }
-ijkplayer-x8664 = { module = "tv.danmaku.ijk.media:ijkplayer-x86_64", version.ref = "ijkplayer" }
+
 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
