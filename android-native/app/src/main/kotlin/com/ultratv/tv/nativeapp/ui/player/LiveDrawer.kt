@@ -92,13 +92,21 @@ internal fun LiveDrawer(
     val f = UltraFonts
     BackHandler { onDismiss() }
 
-    // Focus requesters for cross-column D-pad navigation
-    val iconMenuFocus = remember { FocusRequester() }
-    val channelListFocus = remember { FocusRequester() }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val initialIdx = remember(entries) { entries.indexOfFirst { it.isCurrent }.coerceAtLeast(0) }
+    val currentFocus = remember { FocusRequester() }
+    var focusSet by remember { androidx.compose.runtime.mutableStateOf(false) }
 
-    // Give initial focus to channel list when drawer opens
-    LaunchedEffect(Unit) {
-        channelListFocus.requestFocus()
+    LaunchedEffect(entries) {
+        if (!focusSet && entries.isNotEmpty()) {
+            if (initialIdx > 0) {
+                listState.scrollToItem(initialIdx)
+            }
+            // Let the UI settle before requesting focus
+            kotlinx.coroutines.delay(50)
+            runCatching { currentFocus.requestFocus() }
+            focusSet = true
+        }
     }
 
     Row(Modifier.fillMaxSize()) {
@@ -128,13 +136,9 @@ internal fun LiveDrawer(
                 }
                 Spacer(Modifier.height(16.dp))
                 LazyColumn(
+                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .focusRequester(channelListFocus)
-                        .focusProperties {
-                            // D-pad RIGHT -> jump to icon menu
-                            right = iconMenuFocus
-                        },
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(items = entries, key = { entry -> entry.channel.id }) { e ->
                         val idx = entries.indexOf(e)
@@ -144,6 +148,7 @@ internal fun LiveDrawer(
 
                         Card(
                             onClick = { onPick(e.channel) },
+                            modifier = if (e.isCurrent) Modifier.focusRequester(currentFocus) else Modifier,
                             interactionSource = interaction,
                             shape = CardDefaults.shape(RoundedCornerShape(4.dp)),
                             colors = ultraCardColors(
@@ -185,21 +190,13 @@ internal fun LiveDrawer(
                 }
             }
 
-            // -- Right vertical icon menu (ZinaTV Style) --
             Column(
                 modifier = Modifier
                     .width(72.dp)
                     .fillMaxHeight()
                     .background(Color(0xFF0B0A12)) // Slightly darker for sidebar
                     .padding(vertical = 24.dp)
-                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
-                    .focusRequester(iconMenuFocus)
-                    .focusProperties {
-                        // D-pad LEFT -> jump back to channel list
-                        left = channelListFocus
-                        // Don't let RIGHT escape the drawer
-                        right = androidx.compose.ui.focus.FocusRequester.Cancel
-                    },
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
