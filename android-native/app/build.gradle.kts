@@ -199,6 +199,13 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
     implementation(libs.mediarouter)
     implementation(libs.play.cast.framework)
+    
+    // IjkPlayer fallback engine
+    implementation(libs.ijkplayer.java)
+    implementation(libs.ijkplayer.armv7a)
+    implementation(libs.ijkplayer.arm64)
+    implementation(libs.ijkplayer.x86)
+    implementation(libs.ijkplayer.x86.64)
 
 
     implementation(libs.room.runtime)

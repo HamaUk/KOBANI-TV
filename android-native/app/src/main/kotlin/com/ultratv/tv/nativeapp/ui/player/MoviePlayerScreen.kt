@@ -89,7 +89,7 @@ fun MoviePlayerScreen(url: String, title: String, onBack: () -> Unit, vm: MovieP
     }
 
     val player = remember(playbackPrefs.videoPlayerEngine) {
-        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.SYSTEM) return@remember null
+        if (playbackPrefs.videoPlayerEngine == com.ultratv.tv.nativeapp.data.prefs.VideoPlayerEngine.IJK) return@remember null
         
         val bufMs = (playbackPrefs.bufferSeconds * 1000).coerceAtLeast(15_000)
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()

@@ -1,0 +1,11 @@
+repositories {
+    mavenCentral()
+}
+configurations {
+    testConf
+}
+dependencies {
+    testConf 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
+    testConf 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
+    testConf 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
+}

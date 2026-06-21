@@ -18,7 +18,7 @@ private val Context.userPrefsDs by preferencesDataStore(name = "user_prefs")
 enum class SidebarPosition { LEFT, TOP }
 enum class AppTheme { DARK, AMOLED, BLUE, LIGHT }
 enum class DefaultPlayer { INTERNAL, EXTERNAL }
-enum class VideoPlayerEngine { EXO, SYSTEM }
+enum class VideoPlayerEngine { EXO, IJK }
 
 data class UserPrefs(
     val sidebarPosition: SidebarPosition = SidebarPosition.LEFT,
